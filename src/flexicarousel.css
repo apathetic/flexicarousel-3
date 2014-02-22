@@ -1,0 +1,87 @@
+/*
+ * flexicarousel
+ * https://github.com/apathetic/flexicarousel
+ *
+ * Copyright (c) 2013 Wes Hatch
+ * Licensed under the MIT license.
+ */
+
+.carousel {
+  /* width:xxx; height:yyy; */
+  /* force hardware acceleration */
+  -webkit-transform: translate3d(0, 0, 0);
+     -moz-transform: translate3d(0, 0, 0);
+      -ms-transform: translate3d(0, 0, 0);
+       -o-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
+}
+.carousel nav { -webkit-backface-visibility:hidden; }
+.carousel ul { position:relative; overflow:hidden; -webkit-backface-visibility:hidden; }
+.carousel ul li { position:absolute; top:0; left:0; width:100%; height:100%;
+	display:none;
+  /* Don't animate all properties as it slows down everything: */
+/*  -webkit-transition: left 1s ease-in-out, opacity 0.5s ease;
+     -moz-transition: left 1s ease-in-out, opacity 0.5s ease;
+       -o-transition: left 1s ease-in-out, opacity 0.5s ease;
+          transition: left 1s ease-in-out, opacity 0.5s ease;
+*/
+
+  -webkit-transition: all 1s ease-in-out;
+     -moz-transition: all 1s ease-in-out;
+       -o-transition: all 1s ease-in-out;
+          transition: all 1s ease-in-out;
+
+
+
+}
+
+.carousel ul li.dragging {
+  -webkit-transition: none;
+     -moz-transition: none;
+       -o-transition: none;
+          transition: none;
+
+}
+
+
+.carousel .active {
+	display:block;
+  opacity:1;
+  /*z-index:10;*/
+  left:0;
+  -webkit-transform:translateX(0);
+  -webkit-backface-visibility: hidden;
+
+}
+
+.carousel.slide .before {
+	display:block;
+	left:-100% !important;
+	/*-webkit-transform:translateX(-100%) !important; 		// we use left and not translateX because dragging will override translate */
+}
+.carousel.slide .after  {
+	display:block;
+	left:100%;
+}
+
+
+
+.carousel.fade li { opacity:0; }
+
+
+
+
+/*.carousel-slide .in  { left:0 !important; z-index:3; }
+.carousel.slide .before { left:-100%; }
+.carousel.slide .after { left:100%; }
+
+.carousel.fade .in { opacity:1; }
+.carousel.fade .out { opacity:0; }
+.carousel.fade li { opacity:0; }*/
+
+
+
+.carousel .indicators { /*display:inline-block;*/ position:absolute; bottom:10px; left:0; margin:0; padding:0; width:100%; text-align:center; z-index:10; }
+.carousel .indicators li { display:inline-block; width:10px; height:10px; margin:5px; border-radius:5px; background:#999; cursor:pointer }
+.carousel .indicators li:hover { background:#ccc; }
+.carousel .indicators li.active { background:#fff; }
