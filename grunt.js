@@ -14,10 +14,10 @@ module.exports = function(grunt) {
     concat: {
       dist: {
         src: [
-			'<banner:meta.banner>', 
-			'src/flexicarousel.js', 
-			'src/flexicarousel-paginate.js', 
-			'src/flexicarousel-keyboard.js'
+			'<banner:meta.banner>',
+			'src/flexicarousel.js'
+			// 'src/flexicarousel-paginate.js',
+			// 'src/flexicarousel-keyboard.js'
 		],
         dest: 'dist/<%= pkg.name %>.js'
       }

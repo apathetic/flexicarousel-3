@@ -14,11 +14,16 @@ In your web page:
 <script src="jquery.js"></script>
 <script src="flexicarousel.min.js"></script>
 <script>
-jQuery(function($) {
-	$('.carousel').carousel({
-		// options
+	jQuery(function($) {
+		$('.carousel').carousel({
+			// options
+		});
 	});
-});
+
+	// or, without jquery if you prefer:
+	var container = document.querySelector('.carousel');
+	var carousel = new Carousel(container);
+
 </script>
 ```
 
@@ -31,5 +36,4 @@ _(Coming soon)_
 _(Coming soon)_
 
 ## Release History
-### 0.1.1
-Updated CSS so that only animating relevant properties. Gives much needed performance gain and no stutter-y z-index issues.
+### 0.0.1
