@@ -1,5 +1,5 @@
 {
-  "name": "flexicarousel 2",
+  "name": "flexicarousel",
   "title": "Flexicarousel 2",
   "description": "A carousel that'll dynamically adapt its width: it will grow or shrink alongside a site that’s resizing via css media queries. Uses CSS3 transforms for its transitions and is touch-enabled",
   "version": "0.3.0",

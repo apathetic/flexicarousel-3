@@ -7,7 +7,7 @@
  *
  */
 
-/*jslint debug: true, evil: false, devel: true*/
+/*jslint eqeq: true, browser: true, debug: true, evil: false, devel: true*/
 
 
 
@@ -16,8 +16,7 @@
 // * uses ecma5 js (ie. bind, forEach)
 // * uses non-IE8 friendly class manipulation (ie. classList)
 // * dumps a bunch of crap into global namespace.
-// * currently exposes every function, I will probably want to introduce the
-// 		idea of public and private... or let them by overridden
+// * currently exposes every function, I will probably want to introduce the idea of public and private... or let them by overridden
 // * want to add a few functions that return the number of slides, or ...?
 // * will probably address these items once original idea is flushed out
 
@@ -43,7 +42,7 @@ var transitions = (function(){
 		}
 	}());
 
-	return end && {end: end}
+	return end && {end: end};
 })();
 
 var touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
@@ -60,7 +59,7 @@ var delta,
 var Carousel = function(container, options){
 	this.el = container;
 	this.init(options);
-}
+};
 
 Carousel.prototype = {
 
@@ -73,7 +72,7 @@ Carousel.prototype = {
 		afterClass: 'after',
 		slideWrap: 'ul',			// for binding touch events
 		slides: 'li',
-		infinite: true,
+		infinite: true
 	},
 
 	/**
@@ -95,7 +94,7 @@ Carousel.prototype = {
 
 		if (!this.slideWrap) { return; }
 		if (!this.slides.length) { return; }
-		if (this.slides.length == 2) { this.options.infinite = false }					// need at least 3 slides for this to work
+		if (this.slides.length == 2) { this.options.infinite = false; }					// need at least 3 slides for this to work
 
 		this.before = this.slides.length - 1;
 		this.after = 1;
@@ -113,7 +112,7 @@ Carousel.prototype = {
 		// this.el.addEventListener('mousemove',		this.drag.bind(this));
 		// this.el.addEventListener('mouseup',			this.dragEnd.bind(this));
 
-		return $(this);
+		return this;
 	},
 
 	/**
@@ -139,17 +138,20 @@ Carousel.prototype = {
 	 */
 	go: function( to ){
 
-		// var direction;
-    // determine direction:  1: backward, -1: forward
-    // direction = Math.abs(this.current - to) / (this.current - to);
+		/*
+		var direction;
+
+		// determine direction:  1: backward, -1: forward
+		direction = Math.abs(this.current - to) / (this.current - to);
 
     // move all the slides between 'index' and 'to' by calling go() recursively
-    // var diff = Math.abs(current - to) - 1;
-		// if (diff) {
-			// // setTimeout(
-		// 		go(  (to > current ? to-1 : to+1)  ),
-		// 		// 1000
-		// }
+		var diff = Math.abs(current - to) - 1;
+		if (diff) {
+				----setTimeout(
+			go(  (to > current ? to-1 : to+1)  ),
+				--- 1000
+		}
+		*/
 
 		// check if we need to update the carousel
     if (to == this.current || this.sliding) { return; }
@@ -185,7 +187,7 @@ Carousel.prototype = {
 		this.slides[this.current].classList.add( this.options.activeClass );
 
 		// don't add class to slides[before] / slides[after] if we're at the beginning / end, thus keeping it hidden
-		if (this.current == 0 && !this.options.infinite) {
+		if (this.current === 0 && !this.options.infinite) {
 			this.slides[this.after].classList.add( this.options.afterClass );
 		}
 		else if (this.current <= this.slides.length - 1 && !this.options.infinite) {
@@ -341,8 +343,8 @@ if ( window.jQuery || window.Zepto ) {
 
 			});
 
-		}
-	})( window.jQuery || window.Zepto )
+		};
+	})( window.jQuery || window.Zepto );
 }
 
 

@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: '<json:flexicarousel.jquery.json>',
+    pkg: '<json:flexicarousel.json>',
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -16,8 +16,6 @@ module.exports = function(grunt) {
         src: [
 			'<banner:meta.banner>',
 			'src/flexicarousel.js'
-			// 'src/flexicarousel-paginate.js',
-			// 'src/flexicarousel-keyboard.js'
 		],
         dest: 'dist/<%= pkg.name %>.js'
       }
@@ -33,6 +31,7 @@ module.exports = function(grunt) {
     },
     lint: {
       files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
+      // files: ['grunt.js', 'src/**/*.js']
     },
     watch: {
       files: '<config:lint.files>',
@@ -41,7 +40,7 @@ module.exports = function(grunt) {
     jshint: {
       options: {
         curly: true,
-        eqeqeq: true,
+        // eqeqeq: true,
         immed: true,
         latedef: true,
         newcap: true,
@@ -53,13 +52,19 @@ module.exports = function(grunt) {
         browser: true
       },
       globals: {
-        jQuery: true
+        // jQuery: true
       }
     },
     uglify: {}
   });
 
-  // Default task.
-  grunt.registerTask('default', 'lint qunit concat min');
+  grunt.registerTask('build', [
+    'lint',
+    // 'qunit',
+    'concat',
+    'min'
+  ]);
+
+
 
 };

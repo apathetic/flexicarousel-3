@@ -1,4 +1,4 @@
-
+/*
 	autoRotate: function( rotate ) {
 		if (rotate) {
 			var self = this;
@@ -20,3 +20,4 @@
 		this.interval = null
 		return this
 	},
+*/

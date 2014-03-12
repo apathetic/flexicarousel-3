@@ -14,7 +14,7 @@ by its CSS.
 
 This works fine on desktop, where styles are added or removed by the Javascript and the position of the carousel's slides update accordingly.
 This also allows for a variety of interesting transitions and effects, using CSS3 transforms and transitions. However, this paradigm suffers
-on mobile, where touch interactions and continuos control over a slide's position (ie. via dragging) are desired. Touch-enabled carousels are
+on mobile, where touch interactions and continuous control over a slide's position (ie. via dragging) are desired. Touch-enabled carousels are
 becoming increasingly common (ie. Scooch, Swipe, etc.), and they work by positioning a slide via a 3d offset. The downside of this approach
 is that the CSS-based system for controlling the carousel's behaviour is overriden by Javascript's need to then control everything. The result
 is a larger file size as Javascript (clumisily) trys to emulate the look and feel of CSS using a large array of instantiation arguments and
