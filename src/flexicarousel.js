@@ -66,6 +66,7 @@ Carousel.prototype = {
 	current: 0,
 	slides: [],
 	sliding: false,
+	width: 0,
 	defaults: {
 		activeClass: 'active',
 		beforeClass: 'before',
@@ -111,6 +112,13 @@ Carousel.prototype = {
 		// this.el.addEventListener('mousedown',		this.dragStart.bind(this));
 		// this.el.addEventListener('mousemove',		this.drag.bind(this));
 		// this.el.addEventListener('mouseup',			this.dragEnd.bind(this));
+
+		this.width = this.slideWrap.offsetWidth;
+
+		window.addEventListener('resize', function(){
+			this.width = this.slideWrap.offsetWidth;
+		}.bind(this));
+
 
 		return this;
 	},
@@ -177,7 +185,7 @@ Carousel.prototype = {
 
 		var c = this;
 
-		c.sliding = true;
+		// c.sliding = true;
 		this.slides[this.current].addEventListener(transitions.end, function end(){
 			c.sliding = false;
 			this.removeEventListener(transitions.end, end);
@@ -253,9 +261,9 @@ Carousel.prototype = {
 
 			pixelOffset = delta / touchPixelRatio;
 
+			this.slides[ this.before ] .style.webkitTransform = 'translate(' + (pixelOffset - this.width) + 'px, 0)';
 			this.slides[ this.current ].style.webkitTransform = 'translate(' + pixelOffset + 'px, 0)';
-			this.slides[ this.before ] .style.webkitTransform = 'translate(' + pixelOffset + 'px, 0)';
-			this.slides[ this.after ]  .style.webkitTransform = 'translate(' + pixelOffset + 'px, 0)';
+			this.slides[ this.after ]  .style.webkitTransform = 'translate(' + (pixelOffset + this.width) + 'px, 0)';
 
 		}
 	},
@@ -271,9 +279,13 @@ Carousel.prototype = {
 			this.slides[ this.current ].classList.remove( 'dragging' );
 			this.slides[ this.before ] .classList.remove( 'dragging' );
 			this.slides[ this.after ]  .classList.remove( 'dragging' );
-			this.slides[ this.current ].style.webkitTransform = 'translate(0, 0)';
-			this.slides[ this.before ] .style.webkitTransform = 'translate(0, 0)';
-			this.slides[ this.after ]  .style.webkitTransform = 'translate(0, 0)';
+
+			// this.slides[ this.current ].style.webkitTransform = 'translate(0, 0)';
+			// this.slides[ this.before ] .style.webkitTransform = 'translate(0, 0)';
+			// this.slides[ this.after ]  .style.webkitTransform = 'translate(0, 0)';
+			this.slides[ this.current ].style.webkitTransform = '';
+			this.slides[ this.before ] .style.webkitTransform = '';
+			this.slides[ this.after ]  .style.webkitTransform = '';
 
 			if ( Math.abs(pixelOffset) > dragThreshold ) {
 				var to = pixelOffset < 0 ? this.current + 1 : this.current - 1;
