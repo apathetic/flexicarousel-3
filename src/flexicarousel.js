@@ -280,17 +280,23 @@ Carousel.prototype = {
 			this.slides[ this.before ] .classList.remove( 'dragging' );
 			this.slides[ this.after ]  .classList.remove( 'dragging' );
 
-			// this.slides[ this.current ].style.webkitTransform = 'translate(0, 0)';
 			// this.slides[ this.before ] .style.webkitTransform = 'translate(0, 0)';
+			// this.slides[ this.current ].style.webkitTransform = 'translate(0, 0)';
 			// this.slides[ this.after ]  .style.webkitTransform = 'translate(0, 0)';
-			this.slides[ this.current ].style.webkitTransform = '';
-			this.slides[ this.before ] .style.webkitTransform = '';
-			this.slides[ this.after ]  .style.webkitTransform = '';
+
+			// this.slides[ this.before] .style.webkitTransform = '';
+			// this.slides[ this.current].style.webkitTransform = '';
+			// this.slides[ this.after ] .style.webkitTransform = '';
 
 			if ( Math.abs(pixelOffset) > dragThreshold ) {
 				var to = pixelOffset < 0 ? this.current + 1 : this.current - 1;
 				this.go(to);
 			}
+
+			this.slides[ this.before ] .style.webkitTransform = 'translate(-' + this.width +'px , 0)';
+			this.slides[ this.current ].style.webkitTransform = 'translate(0, 0)';
+			this.slides[ this.after ]  .style.webkitTransform = 'translate(' + this.width +'px, 0)';
+
 	},
 
 	destroy: function(){

@@ -9,15 +9,15 @@
 .carousel ul { position:relative; overflow:hidden; -webkit-backface-visibility:hidden; }
 .carousel ul li { position:absolute; top:0; left:0; width:100%; height:100%;
 
-  -webkit-transition: all 0.5s ease-in-out;		/* kinda stupid. translate will fall back to 0, while left transitions */
-     -moz-transition: all 0.5s ease-in-out;
-       -o-transition: all 0.5s ease-in-out;
-          transition: all 0.5s ease-in-out;
+  -webkit-transition: all 1s ease-in-out;		/* kinda stupid. translate will fall back to 0, while left transitions */
+     -moz-transition: all 1s ease-in-out;
+       -o-transition: all 1s ease-in-out;
+          transition: all 1s ease-in-out;
 }
 .carousel .active {
 	 display:block !important;				/* will cause a repaint and a reflow */
 	/* visibility: visible !important;*/	/* will cause a repaint, but not a reflow */
-	/*z-index: 10 !important; 				/* best? as isn't susceptible to a transform */
+	/*z-index: 10 !important; 				 best? as isn't susceptible to a transform */
 
   opacity:1 !important;
 
