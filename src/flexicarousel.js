@@ -11,6 +11,18 @@
 
 
 
+// NOTES:
+// * still a proof of concept
+// * uses ecma5 js (ie. bind, forEach)
+// * uses non-IE8 friendly class manipulation (ie. classList)
+// * dumps a bunch of crap into global namespace.
+// * currently exposes every function, I will probably want to introduce the
+// 		idea of public and private... or let them by overridden
+// * want to add a few functions that return the number of slides, or ...?
+// * will probably address these items once original idea is flushed out
+
+
+
 // browser capabilities
 var transitions = (function(){
 
@@ -37,7 +49,7 @@ var transitions = (function(){
 var touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
 
 // touch vars
-var deltaSlide,
+var delta,
 	dragging = 0,
 	startClientX = 0,
 	pixelOffset = 0,
@@ -48,19 +60,6 @@ var deltaSlide,
 var Carousel = function(container, options){
 	this.el = container;
 	this.init(options);
-
-	// this.current = 0;
-	// this.slides = [];
-	// this.sliding = false;
-	// this.defaults = {
-	// 	activeClass: 'active',
-	// 	beforeClass: 'before',
-	// 	afterClass: 'after',
-	// 	slides: 'ul li',
-	// 	infinite: true,
-	// 	autoRotate: false,
-	// }
-
 }
 
 Carousel.prototype = {
@@ -72,22 +71,31 @@ Carousel.prototype = {
 		activeClass: 'active',
 		beforeClass: 'before',
 		afterClass: 'after',
-		slides: 'ul li',
+		slideWrap: 'ul',			// for binding touch events
+		slides: 'li',
 		infinite: true,
-		autoRotate: false,
 	},
 
+	/**
+	 * Initialize the carousel and set some defaults
+	 * @param  {object} options List of key: value options
+	 * @return {void}
+	 */
 	init: function(options){
 
-		var trans;
-				optsAttr = $(this.el).attr('data-options') || '{}';
-
 		// TODO handle options attr better;
-		eval('var data='+optsAttr);
-		this.options = $.extend( {}, this.defaults, data );
+		// optsAttr = $(this.el).attr('data-options') || '{}';
+		// eval('var data='+optsAttr);
 
+		// this.options = this._extend( {}, this.defaults, data );
+		this.options = this._extend( {}, this.defaults );
+
+		this.slideWrap = this.el.querySelectorAll(this.options.slideWrap)[0];
 		this.slides = this.el.querySelectorAll(this.options.slides);
+
+		if (!this.slideWrap) { return; }
 		if (!this.slides.length) { return; }
+		if (this.slides.length == 2) { this.options.infinite = false }					// need at least 3 slides for this to work
 
 		this.before = this.slides.length - 1;
 		this.after = 1;
@@ -98,9 +106,9 @@ Carousel.prototype = {
 			this.slides[ this.before ].classList.add( this.options.beforeClass );
 		}
 
-		this.el.addEventListener('touchstart',	this.dragStart.bind(this));		// ecma5 bind
-		this.el.addEventListener('touchmove',		this.drag.bind(this));					// ecma5 bind
-		this.el.addEventListener('touchend',		this.dragEnd.bind(this));				// ecma5 bind
+		this.slideWrap.addEventListener('touchstart',	this.dragStart.bind(this));			// ecma5 bind
+		this.slideWrap.addEventListener('touchmove',	this.drag.bind(this));					// ecma5 bind
+		this.slideWrap.addEventListener('touchend',		this.dragEnd.bind(this));				// ecma5 bind
 		// this.el.addEventListener('mousedown',		this.dragStart.bind(this));
 		// this.el.addEventListener('mousemove',		this.drag.bind(this));
 		// this.el.addEventListener('mouseup',			this.dragEnd.bind(this));
@@ -108,51 +116,43 @@ Carousel.prototype = {
 		return $(this);
 	},
 
-	/*
-	autoRotate: function( rotate ) {
-		if (rotate) {
-			var self = this;
-			this.timer = setInterval(function(){
-				$(self).carousel('next');
-			}, 5000);
-		} else {
-			clearTimeout(this.timer);
-		}
-	},
-
-	pause: function (e) {
-		if (!e) this.paused = true
-		if (this.$element.find('.next, .prev').length && transitions) {
-			this.$element.trigger(transitions.end)
-			this.cycle(true)
-		}
-		clearInterval(this.interval)
-		this.interval = null
-		return this
-	},
-	*/
-
+	/**
+	 * Go to the next slide
+	 * @return {void}
+	 */
 	next: function(){
 		this.go(this.current + 1);
 	},
 
+	/**
+	 * Go to the previous slide
+	 * @return {void}
+	 */
 	prev: function(){
 		this.go(this.current - 1);
 	},
 
+	/**
+	 * Go to a particular slide
+	 * @param  {int} to Slide to display
+	 * @return {void}
+	 */
 	go: function( to ){
 
 		// var direction;
-
-		// check if we need to update the carousel
-    if (to == this.current || this.sliding) { return; }
-
     // determine direction:  1: backward, -1: forward
     // direction = Math.abs(this.current - to) / (this.current - to);
 
     // move all the slides between 'index' and 'to' by calling go() recursively
     // var diff = Math.abs(current - to) - 1;
-		// if (diff) go(  (to > current ? to-1 : to+1)  );
+		// if (diff) {
+			// // setTimeout(
+		// 		go(  (to > current ? to-1 : to+1)  ),
+		// 		// 1000
+		// }
+
+		// check if we need to update the carousel
+    if (to == this.current || this.sliding) { return; }
 
     // remove classes
 		this.slides[this.current].classList.remove( this.options.activeClass );
@@ -160,20 +160,30 @@ Carousel.prototype = {
 		this.slides[this.after]  .classList.remove( this.options.afterClass );
 
     // setup prev / next indices
-		this.current = this.loop(to);
-		this.before = this.loop(to - 1);
-		this.after = this.loop(to + 1);
+		this.current = this._loop(to);
+		this.before = this._loop(to - 1);
+		this.after = this._loop(to + 1);
 
 		this.move();
 	},
 
+	/**
+	 * Move the relevant slides in the carousel
+	 * @return {void}
+	 */
 	move: function() {
 
-		// this.sliding = true;
+		var c = this;
+
+		c.sliding = true;
+		this.slides[this.current].addEventListener(transitions.end, function end(){
+			c.sliding = false;
+			this.removeEventListener(transitions.end, end);
+		});
+
 
 		this.slides[this.current].classList.add( this.options.activeClass );
 
-		// need at least 3 slides for this to work
 		// don't add class to slides[before] / slides[after] if we're at the beginning / end, thus keeping it hidden
 		if (this.current == 0 && !this.options.infinite) {
 			this.slides[this.after].classList.add( this.options.afterClass );
@@ -187,11 +197,17 @@ Carousel.prototype = {
 		}
 	},
 
-	loop: function(val) {
-		return (this.slides.length + (val % this.slides.length)) % this.slides.length;
-	},
-
+	/**
+	 * Start dragging (via touch)
+	 * @param  {event} e Touch event
+	 * @return {void}
+	 */
 	dragStart: function(e) {
+
+		if (this.sliding) {
+			/*console.log('drag while sliding');*/
+			return false;
+		}
 
 		if (e.touches) {
 			e = e.touches[0];
@@ -216,6 +232,11 @@ Carousel.prototype = {
 		}
 	},
 
+	/**
+	 * Update slides positions according to user's touch
+	 * @param  {event} e Touch event
+	 * @return {void}
+	 */
 	drag: function(e) {
 
 		e.preventDefault();
@@ -224,11 +245,11 @@ Carousel.prototype = {
 			e = e.touches[0];
 		}
 
-		deltaSlide = e.clientX - startClientX;
+		delta = e.clientX - startClientX;
 
-		if (dragging && deltaSlide !== 0) {
+		if (dragging && delta !== 0) {
 
-			pixelOffset = deltaSlide / touchPixelRatio;
+			pixelOffset = delta / touchPixelRatio;
 
 			this.slides[ this.current ].style.webkitTransform = 'translate(' + pixelOffset + 'px, 0)';
 			this.slides[ this.before ] .style.webkitTransform = 'translate(' + pixelOffset + 'px, 0)';
@@ -237,6 +258,11 @@ Carousel.prototype = {
 		}
 	},
 
+	/**
+	 * Drag end, calculate slides' new positions
+	 * @param  {event} e Touch event
+	 * @return {void}
+	 */
 	dragEnd: function(e) {
 			dragging = 0;
 
@@ -255,9 +281,37 @@ Carousel.prototype = {
 
 	destroy: function(){
 		// TODO
+	},
+
+	/**
+	 * Helper function. Calculate modulo of a slides position
+	 * @param  {int} val Slide's position
+	 * @return {void}
+	 */
+	_loop: function(val) {
+		return (this.slides.length + (val % this.slides.length)) % this.slides.length;
+	},
+
+	/**
+	 * Helper function. Ripped from underscore
+	 * @param  {object} obj A list of objects to extend
+	 * @return {object}     The extended object
+	 */
+  _extend: function(obj) {
+		// each(slice.call(arguments, 1), function(source) {
+		Array.prototype.slice.call(arguments, 1).forEach(function (source) {
+			if (source) {
+				for (var prop in source) {
+					obj[prop] = source[prop];
+				}
+			}
+		});
+		return obj;
 	}
 
 };
+
+
 
 
 if ( window.jQuery || window.Zepto ) {
