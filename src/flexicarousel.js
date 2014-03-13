@@ -15,50 +15,47 @@
 // * still a proof of concept
 // * uses ecma5 js (ie. bind, forEach)
 // * uses non-IE8 friendly class manipulation (ie. classList)
-// * dumps a bunch of crap into global namespace.
 // * currently exposes every function, I will probably want to introduce the idea of public and private... or let them by overridden
 // * want to add a few functions that return the number of slides, or ...?
 // * will probably address these items once original idea is flushed out
 
 
 
-// browser capabilities
-var transitions = (function(){
-
-	var end = (function(){
-		var t,
-			el = document.createElement('fake'),
-			transitions = {
-			'transition': 'transitionend',
-			'OTransition': 'oTransitionEnd otransitionend',
-			'MozTransition': 'transitionend',
-			'WebkitTransition': 'webkitTransitionEnd'
-		};
-
-		for(t in transitions){
-			if( el.style[t] !== undefined ){
-				return transitions[t];
-			}
-		}
-	}());
-
-	return end && {end: end};
-})();
-
-var touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
-
-// touch vars
-var delta,
-	dragging = 0,
-	startClientX = 0,
-	pixelOffset = 0,
-	touchPixelRatio = 1,
-	dragThreshold = 80;
-
-// carousel object
 var Carousel = function(container, options){
+
 	this.el = container;
 	this.init(options);
+
+	// state vars
+	// this.current = 0;
+
+	// touch vars
+	this.delta = 0;
+	this.dragging = 0;
+	this.startClientX = 0;
+	this.pixelOffset = 0;
+	this.touchPixelRatio = 1;
+	this.dragThreshold = 80;
+
+	// browser capabilities
+	// this.touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
+	this.transitions = (function(){
+		var end = (function(){
+			var t,
+				el = document.createElement('fake'),
+				transitions = {
+				'transition': 'transitionend',
+				'OTransition': 'oTransitionEnd otransitionend',
+				'MozTransition': 'transitionend',
+				'WebkitTransition': 'webkitTransitionEnd'
+			};
+			for(t in transitions){
+				if( el.style[t] !== undefined ){ return transitions[t]; }
+			}
+		}());
+		return end && {end: end};
+	})();
+
 };
 
 Carousel.prototype = {
@@ -95,16 +92,14 @@ Carousel.prototype = {
 
 		if (!this.slideWrap) { return; }
 		if (!this.slides.length) { return; }
-		if (this.slides.length == 2) { this.options.infinite = false; }					// need at least 3 slides for this to work
+		if (this.slides.length < 3) { this.options.infinite = false; }					// need at least 3 slides for this to work
 
 		this.before = this.slides.length - 1;
 		this.after = 1;
 
-		this.slides[this.current].classList.add( this.options.activeClass );
-		this.slides[this.after].classList.add( this.options.afterClass );
-		if (this.options.infinite) {
-			this.slides[ this.before ].classList.add( this.options.beforeClass );
-		}
+		this.slides[ this.before ] .classList.add( this.options.beforeClass );
+		this.slides[ this.current ].classList.add( this.options.activeClass );
+		this.slides[ this.after ]  .classList.add( this.options.afterClass );
 
 		this.slideWrap.addEventListener('touchstart',	this.dragStart.bind(this));			// ecma5 bind
 		this.slideWrap.addEventListener('touchmove',	this.drag.bind(this));					// ecma5 bind
@@ -114,7 +109,6 @@ Carousel.prototype = {
 		// this.el.addEventListener('mouseup',			this.dragEnd.bind(this));
 
 		this.width = this.slideWrap.offsetWidth;
-
 		window.addEventListener('resize', function(){
 			this.width = this.slideWrap.offsetWidth;
 		}.bind(this));
@@ -129,6 +123,7 @@ Carousel.prototype = {
 	 */
 	next: function(){
 		this.go(this.current + 1);
+		return false;
 	},
 
 	/**
@@ -146,33 +141,62 @@ Carousel.prototype = {
 	 */
 	go: function( to ){
 
-		/*
-		var direction;
+		if (to == this.current || this.sliding) { return; }
 
-		// determine direction:  1: backward, -1: forward
-		direction = Math.abs(this.current - to) / (this.current - to);
+		console.log('Going to %d from %d', to+1, this.current+1);
 
-    // move all the slides between 'index' and 'to' by calling go() recursively
-		var diff = Math.abs(current - to) - 1;
-		if (diff) {
-				----setTimeout(
-			go(  (to > current ? to-1 : to+1)  ),
-				--- 1000
-		}
-		*/
+		// edge case where dragging is mixed with API
+		this.slides[ this.before] .style.webkitTransform = '';
+		this.slides[ this.current].style.webkitTransform = '';
+		this.slides[ this.after ] .style.webkitTransform = '';
 
-		// check if we need to update the carousel
-    if (to == this.current || this.sliding) { return; }
-
-    // remove classes
-		this.slides[this.current].classList.remove( this.options.activeClass );
+		// remove classes
 		this.slides[this.before] .classList.remove( this.options.beforeClass );
+		this.slides[this.current].classList.remove( this.options.activeClass );
 		this.slides[this.after]  .classList.remove( this.options.afterClass );
 
-    // setup prev / next indices
+
+		/* * /
+    // if going more than one slide, move 'x' slides by calling go() recursively
+		var diff = this.current - to;
+		while ( Math.abs(diff) > 1) {
+
+			console.log('diff', diff);
+			/*
+			var direction;
+			direction = Math.abs(this.current - to) / (this.current - to);			// determine direction:  1: backward, -1: forward
+			/* * /
+
+			diff--;
+
+			// setTimeout(function(){
+				this.go(  (to > this.current ? this.current + diff : this.current - diff)  );
+			// }.bind(this), 1000);
+		}
+		/* */
+
+		var diff = (to - this.current);
+		if ( Math.abs(diff) > 1 ) {
+
+			// replace / position the "after" slide with the "to"
+			var temp = this._loop(to);
+
+			if (diff > 0) {
+				this.slides[temp].classList.add(this.options.afterClass)
+			} else {
+				this.slides[temp].classList.add(this.options.beforeClass)
+			}
+
+		}
+
+
+
+
+		// setup prev / next indices
+		this.before  = this._loop(to - 1);
 		this.current = this._loop(to);
-		this.before = this._loop(to - 1);
-		this.after = this._loop(to + 1);
+		this.after   = this._loop(to + 1);
+
 
 		this.move();
 	},
@@ -185,20 +209,23 @@ Carousel.prototype = {
 
 		var c = this;
 
-		// c.sliding = true;
-		this.slides[this.current].addEventListener(transitions.end, function end(){
+			// $to[0].offsetHeight;				// force a repaint to position this element. *Important*
+
+
+		c.sliding = true;
+		this.slides[this.current].addEventListener(this.transitions.end, function end(){
 			c.sliding = false;
-			this.removeEventListener(transitions.end, end);
+			this.removeEventListener(c.transitions.end, end);
 		});
 
 
 		this.slides[this.current].classList.add( this.options.activeClass );
 
-		// don't add class to slides[before] / slides[after] if we're at the beginning / end, thus keeping it hidden
-		if (this.current === 0 && !this.options.infinite) {
+		// if not infinite: don't add class to before / after if we're at the beginning
+		if      (!this.options.infinite && this.current === 0) {
 			this.slides[this.after].classList.add( this.options.afterClass );
 		}
-		else if (this.current <= this.slides.length - 1 && !this.options.infinite) {
+		else if (!this.options.infinite && this.current <= this.slides.length - 1) {
 			this.slides[this.before].classList.add( this.options.beforeClass );
 		}
 		else {
@@ -215,24 +242,22 @@ Carousel.prototype = {
 	dragStart: function(e) {
 
 		if (this.sliding) {
-			/*console.log('drag while sliding');*/
 			return false;
 		}
 
 		if (e.touches) {
 			e = e.touches[0];
 		}
-		if (dragging === 0) {
-			dragging = 1;
-			pixelOffset = 0;
-			startClientX = e.clientX;
-			// visible = [active, before, after];
+		if (this.dragging === 0) {
+			this.dragging = 1;
+			this.pixelOffset = 0;
+			this.startClientX = e.clientX;
 
 			// at the beginning going more beginninger, or at the end going more ender-er
-			if ((this.current === 0 && e.clientX > startClientX) || (this.current === this.slides.length - 1 && e.clientX < startClientX)) {
-				touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
+			if ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX)) {
+				this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
 			} else {
-				touchPixelRatio = 1;
+				this.touchPixelRatio = 1;
 			}
 
 			this.slides[ this.current ].classList.add( 'dragging' );
@@ -255,15 +280,17 @@ Carousel.prototype = {
 			e = e.touches[0];
 		}
 
-		delta = e.clientX - startClientX;
+		this.delta = e.clientX - this.startClientX;
 
-		if (dragging && delta !== 0) {
+		if (this.dragging && this.delta !== 0) {
 
-			pixelOffset = delta / touchPixelRatio;
+			this.pixelOffset = this.delta / this.touchPixelRatio;
 
-			this.slides[ this.before ] .style.webkitTransform = 'translate(' + (pixelOffset - this.width) + 'px, 0)';
-			this.slides[ this.current ].style.webkitTransform = 'translate(' + pixelOffset + 'px, 0)';
-			this.slides[ this.after ]  .style.webkitTransform = 'translate(' + (pixelOffset + this.width) + 'px, 0)';
+			// this._translate( this.before, (this.pixelOffset - this.width) );
+
+			this.slides[ this.before ] .style.webkitTransform = 'translate(' + (this.pixelOffset - this.width) + 'px, 0)';
+			this.slides[ this.current ].style.webkitTransform = 'translate(' + this.pixelOffset + 'px, 0)';
+			this.slides[ this.after ]  .style.webkitTransform = 'translate(' + (this.pixelOffset + this.width) + 'px, 0)';
 
 		}
 	},
@@ -274,7 +301,7 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	dragEnd: function(e) {
-			dragging = 0;
+			this.dragging = 0;
 
 			this.slides[ this.current ].classList.remove( 'dragging' );
 			this.slides[ this.before ] .classList.remove( 'dragging' );
@@ -288,17 +315,20 @@ Carousel.prototype = {
 			// this.slides[ this.current].style.webkitTransform = '';
 			// this.slides[ this.after ] .style.webkitTransform = '';
 
-			if ( Math.abs(pixelOffset) > dragThreshold ) {
-				var to = pixelOffset < 0 ? this.current + 1 : this.current - 1;
+			if ( Math.abs(this.pixelOffset) > this.dragThreshold ) {
+				var to = this.pixelOffset < 0 ? this.current + 1 : this.current - 1;
 				this.go(to);
 			}
 
 			this.slides[ this.before ] .style.webkitTransform = 'translate(-' + this.width +'px , 0)';
 			this.slides[ this.current ].style.webkitTransform = 'translate(0, 0)';
 			this.slides[ this.after ]  .style.webkitTransform = 'translate(' + this.width +'px, 0)';
-
 	},
 
+	/**
+	 * [ description]
+	 * @return {[type]} [description]
+	 */
 	destroy: function(){
 		// TODO
 	},
@@ -310,6 +340,16 @@ Carousel.prototype = {
 	 */
 	_loop: function(val) {
 		return (this.slides.length + (val % this.slides.length)) % this.slides.length;
+	},
+
+	/**
+	 * Helper function to translate slide in browser
+	 * @param  {[type]} el     [description]
+	 * @param  {[type]} offset [description]
+	 * @return {[type]}        [description]
+	 */
+	_translate: function(i, offset) {
+			this.slides[ i ] .style.webkitTransform = 'translate(' + offset + 'px, 0)';
 	},
 
 	/**
