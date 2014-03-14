@@ -30,19 +30,25 @@
 		SLIDE TRANSITIONS
 ------------------------------------- */
 .carousel.slide li.before {
-	-webkit-transform:translateX(-100%);
 	z-index: 1;
+	-webkit-transform: translateX(-100%);
+     -moz-transform: translateX(-100%);
+       -o-transform: translateX(-100%);
+          transform: translateX(-100%);
 }
 .carousel.slide li.after  {
-	-webkit-transform:translateX(100%);
 	z-index: 1;
+	-webkit-transform: translateX(100%);
+     -moz-transform: translateX(100%);
+       -o-transform: translateX(100%);
+          transform: translateX(100%);
 }
 .carousel.slide li.active {
 	z-index: 5;
-   -webkit-transform: translateX(0);
-     -moz-transition: translateX(0);
-       -o-transition: translateX(0);
-          transition: translateX(0);
+  -webkit-transform: translateX(0);
+     -moz-transform: translateX(0);
+       -o-transform: translateX(0);
+          transform: translateX(0);
 }
 
 
@@ -53,10 +59,4 @@
 .carousel.fade li { opacity:0; }
 
 
-/* -------------------------------------
-		NAVIGATION
-------------------------------------- */
-.carousel nav { text-align:center; position:absolute; bottom:-24px; left:0; height:24px; margin:0; padding:0; width:100%; text-align:center; z-index:10; }
-.carousel nav span { display:inline-block; width:10px; height:10px; margin:7px; border-radius:5px; background:#999; cursor:pointer }
-.carousel nav span:hover { background:#ccc; }
-.carousel nav span.active { background:#fff; }
+
