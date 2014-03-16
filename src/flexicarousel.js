@@ -15,9 +15,9 @@
 // * still a proof of concept
 // * uses ecma5 js (ie. bind, forEach)
 // * uses non-IE8 friendly class manipulation (ie. classList)
-// * currently exposes every function, I will probably want to introduce the idea of public and private... or let them by overridden
-// * want to add a few functions that return the number of slides, or ...?
-// * will probably address these items once original idea is flushed out
+// * mobile tranforms are currently webkit-only
+// * may want to add a few helper functions, ie. return the number of slides...?
+// * will address these items once original idea is flushed out
 
 
 
@@ -51,7 +51,7 @@ var Carousel = function(container, options){
 
 	// browser capabilities
 	// --------------------
-	this.touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
+	// this.touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
 	this.transitionEnd = (function(){
 		var t,
 			el = document.createElement('fake'),
@@ -90,7 +90,7 @@ Carousel.prototype = {
 	 */
 	init: function(options){
 
-		this.options = this._extend( {}, this.defaults );
+		this.options = this._extend( this.defaults, options );
 
 		this.slideWrap = this.el.querySelector(this.options.slideWrap);
 		this.slides = this.el.querySelectorAll(this.options.slides);
@@ -145,34 +145,45 @@ Carousel.prototype = {
 	go: function( to ){
 
 		var direction,
-				c = this;
+			c = this;
 
-    // determine direction:  1: backward, -1: forward. Do this before we % it
-    direction = Math.abs(this.current - to) / (this.current - to);
+    	// determine direction:  1: backward, -1: forward. Do this before we % it
+    	direction = Math.abs(this.current - to) / (this.current - to);
 
-    // check bounds
-    if (this.options.infinite) {
-			to = this._loop(to);
-		} else {
-			to = Math.max( Math.min(this.slides.length-1, to), 0);
-		}
+    	// check bounds
+	    if (this.options.infinite) { to = this._loop(to); }
+	    else { to = Math.max( Math.min(this.slides.length-1, to), 0); }
+
+	    // dont do nuthin if we dont need to
 		if (to == this.current || this.sliding) { return; }
 
 
 
+		// prime the slides: position the ones we're going to and moving from
 		// var diff = to - this.current;
 		// if (Math.abs(diff) > 1) {
-	    // position the slide we're going to, and prime the slide we're moving from
-	    if (direction > 0) {
-	    	this.slides[ to ].classList.add( this.options.beforeClass, 'no-trans' );			// place it beside the currently active slide. "no-trans" ensures this happens instantly
-	    	this.slides[ this.current ].classList.add( this.options.afterClass );					// this slide will not move as long as "active" is also present
-	    } else {
+		if (direction > 0) {
+	    	this.slides[ to ].classList.add( this.options.beforeClass, 'no-trans' );
+			this.slides[ to ].classList.remove( this.options.afterClass );				// only need if .after follows .before in css
+			this.slides[ this.current ].classList.add( this.options.afterClass );		// this slide will not move just yet, so long as "active" is also present
+		} else {
 	    	this.slides[ to ].classList.add( this.options.afterClass, 'no-trans' );
-	    	this.slides[ this.current ].classList.add( this.options.beforeClass );
-			}
-			this.slides[ to ].offsetHeight;				// force a repaint to actually position this element. *Important*
+			this.slides[ this.current ].classList.add( this.options.beforeClass );
+		}
+		this.slides[ to ].offsetHeight;													// force a repaint to actually position "to" slide. *Important*
+		this.slides[ to ].classList.remove( 'no-trans' );
 		// }
 
+
+		// start the transition
+		// this._slideStart(to, this.current);
+		this.sliding = true;
+
+		this.slides[ to ].classList.add( this.options.activeClass );
+		this.slides[ this.current ].classList.remove( this.options.activeClass );
+		this.slides[ to ].classList.remove( this.options.beforeClass, this.options.afterClass );
+
+		this.current = to;
 
 
 
@@ -181,26 +192,23 @@ Carousel.prototype = {
 				this.removeEventListener(c.transitionEnd, end);
 				c._slideEnd();
 			});
-			this._slideStart(to, this.current);
 		} else {
 			this._slideEnd();
 		}
 
 	},
 
-	_slideStart: function(to, from) {
-		this.sliding = true;
+	// _slideStart: function(to, from) {
+	// 	this.sliding = true;
 
-		this.slides[ to ].classList.remove( 'no-trans' );
-		this.slides[ to ].classList.add( this.options.activeClass );
-		this.slides[ from ].classList.remove( this.options.activeClass );
-		this.slides[ to ]  .classList.remove( this.options.beforeClass, this.options.afterClass );
+	// 	this.slides[ to ].classList.add( this.options.activeClass );
+	// 	this.slides[ from ].classList.remove( this.options.activeClass );
+	// 	this.slides[ to ]  .classList.remove( this.options.beforeClass, this.options.afterClass );
 
-		this.current = to;
-	},
+	// 	this.current = to;
+	// },
 
 	_slideEnd: function() {
-
 		this.sliding = false;
 
 		// if (this.touch) {
@@ -214,7 +222,6 @@ Carousel.prototype = {
 			this.slides[this.before].classList.add( this.options.beforeClass );
 			this.slides[this.after] .classList.add( this.options.afterClass );
 		// }
-
 	},
 
 	/**
@@ -236,12 +243,7 @@ Carousel.prototype = {
 			this.pixelOffset = 0;
 			this.startClientX = e.clientX;
 
-			// at the beginning going more beginninger, or at the end going more ender-er
-			// if ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX)) {
-			// 	this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
-			// } else {
-				this.touchPixelRatio = 1;
-			// }
+			this.touchPixelRatio = 1;
 
 			this.slides[ this.current ].classList.add( 'no-trans' );
 			this.slides[ this.before ] .classList.add( 'no-trans' );
@@ -262,6 +264,15 @@ Carousel.prototype = {
 		if (e.touches) {
 			e = e.touches[0];
 		}
+
+
+		// at the beginning going more beginninger, or at the end going more ender-er
+		// if ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX)) {
+		// 	this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
+		// } else {
+		//	 this.touchPixelRatio = 1;
+		// }
+
 
 		this.delta = e.clientX - this.startClientX;
 
@@ -306,7 +317,7 @@ Carousel.prototype = {
 	/**
 	 * Helper function. Calculate modulo of a slides position
 	 * @param  {int} val Slide's position
-	 * @return {void}
+	 * @return {int} the index modulo the # of slides
 	 */
 	_loop: function(val) {
 		return (this.slides.length + (val % this.slides.length)) % this.slides.length;
@@ -327,8 +338,7 @@ Carousel.prototype = {
 	 * @param  {object} obj A list of objects to extend
 	 * @return {object}     The extended object
 	 */
-  _extend: function(obj) {
-		// each(slice.call(arguments, 1), function(source) {
+	_extend: function(obj) {
 		Array.prototype.slice.call(arguments, 1).forEach(function (source) {
 			if (source) {
 				for (var prop in source) {
@@ -365,7 +375,7 @@ if ( window.jQuery || window.Zepto ) {
 
 				// otherwise, engage thrusters
 				if ( typeof method === 'object' || ! method ) {
-					var carousel = new Carousel( $(this)[0], args );
+					var carousel = new Carousel( $(this)[0], args[0] );
 					return $(this).data('carousel', carousel);			// let's store the newly instantiated object in the $'s data
 				}
 

@@ -6,6 +6,7 @@
 
 	<link rel="stylesheet" href="../../src/flexicarousel.css" type="text/css">
 	<style type="text/css" media="screen">
+
 		body, html { height:100%; }
 		ul, li { margin:0; padding:0; list-style:none; }
 
@@ -125,7 +126,9 @@
 		// using jQuery
 		$(function(){
 
-			var car1 = $('#one').carousel();
+			var car1 = $('#one').carousel({
+				// 'infinite': false
+			});
 
 			$('#one .prev').click(function(e){
 				e.preventDefault();
@@ -181,7 +184,9 @@
 		// multiple transitions
 
 		var container = document.querySelector('#three');
-		var car3 = new Carousel(container);
+		var car3 = new Carousel(container, {
+			'infinite': false
+		});
 
 		container.querySelector('.prev').addEventListener('click', function(e){
 			e.preventDefault();
