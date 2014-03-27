@@ -56,7 +56,7 @@
 
 	<h1>Sliding transition</h1>
 	<div id="one" class="carousel slide" data-options="{infinite:true}">
-		<ul>
+		<ul class="wrap">
 			<li class="active"><span>1</span><img src="http://lorempixel.com/800/480/nature/1" alt="" /></li>
 			<li><span>2</span><img src="http://lorempixel.com/800/480/nature/2" alt="" /></li>
 			<li><span>3</span><img src="http://lorempixel.com/800/480/nature/3" alt="" /></li>
@@ -76,7 +76,7 @@
 	</div>
 
 	<div id="one-b" class="carousel slide clipped" data-options="{infinite:true}">
-		<ul>
+		<ul class="wrap">
 			<li class="active"><span>1</span><img src="http://lorempixel.com/800/480/nature/1" alt="" /></li>
 			<li class="after"><span>2</span><img src="http://lorempixel.com/800/480/nature/2" alt="" /></li>
 			<li><span>3</span><img src="http://lorempixel.com/800/480/nature/3" alt="" /></li>
@@ -91,7 +91,7 @@
 
 	<h1>Fade transition</h1>
 	<div id="two" class="carousel fade">
-		<ul>
+		<ul class="wrap">
 			<li class="active"><span>1</span><img src="http://lorempixel.com/800/480/nature/1" alt="" /></li>
 			<li><span>2</span><img src="http://lorempixel.com/800/480/nature/2" alt="" /></li>
 			<li><span>3</span><img src="http://lorempixel.com/800/480/nature/3" alt="" /></li>
@@ -102,9 +102,9 @@
 		<a href="#next" class="next" aria-hidden="true">Next</a>
 	</div>
 
-	<h1>Multiple transitions</h1>
+	<h1>Multiple transitions (not infinite)</h1>
 	<div id="three" class="carousel fade slide">
-		<ul>
+		<ul class="wrap">
 			<li class="active"><span>1</span><img src="http://lorempixel.com/800/480/nature/1" alt="" /></li>
 			<li><span>2</span><img src="http://lorempixel.com/800/480/nature/2" alt="" /></li>
 			<li><span>3</span><img src="http://lorempixel.com/800/480/nature/3" alt="" /></li>
@@ -148,17 +148,17 @@
 
 
 
-			var car1b = $('#one-b').carousel();
+			// var car1b = $('#one-b').carousel();
 
-			$('#one-b .prev').click(function(e){
-				e.preventDefault();
-				e.stopPropagation();
-				car1b.carousel('prev');
-			});
-			$('#one-b .next').click(function(e){
-				e.preventDefault();
-				car1b.carousel('next');
-			});
+			// $('#one-b .prev').click(function(e){
+			// 	e.preventDefault();
+			// 	e.stopPropagation();
+			// 	car1b.carousel('prev');
+			// });
+			// $('#one-b .next').click(function(e){
+			// 	e.preventDefault();
+			// 	car1b.carousel('next');
+			// });
 
 
 		});
@@ -166,15 +166,15 @@
 		// ------------------------------------------------------------------
 		// vanilla js
 
-		var container = document.querySelector('#two');
-		var car2 = new Carousel(container);
+		var container2 = document.querySelector('#two');
+		var car2 = new Carousel(container2);
 
-		container.querySelector('.prev').addEventListener('click', function(e){
+		container2.querySelector('.prev').addEventListener('click', function(e){
 			e.preventDefault();
 			car2.prev();
 		});
 
-		container.querySelector('.next').addEventListener('click', function(e){
+		container2.querySelector('.next').addEventListener('click', function(e){
 			e.preventDefault();
 			car2.next();
 		});
@@ -183,17 +183,17 @@
 		// ------------------------------------------------------------------
 		// multiple transitions
 
-		var container = document.querySelector('#three');
-		var car3 = new Carousel(container, {
+		var container3 = document.querySelector('#three');
+		var car3 = new Carousel(container3, {
 			'infinite': false
 		});
 
-		container.querySelector('.prev').addEventListener('click', function(e){
+		container3.querySelector('.prev').addEventListener('click', function(e){
 			e.preventDefault();
 			car3.prev();
 		});
 
-		container.querySelector('.next').addEventListener('click', function(e){
+		container3.querySelector('.next').addEventListener('click', function(e){
 			e.preventDefault();
 			car3.next();
 		});

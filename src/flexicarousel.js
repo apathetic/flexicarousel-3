@@ -14,8 +14,9 @@
 // NOTES:
 // * still a proof of concept
 // * uses ecma5 js (ie. bind, forEach)
-// * uses non-IE8 friendly class manipulation (ie. classList)
+// * FIXED: uses non-IE8 friendly class manipulation (ie. classList)
 // * mobile tranforms are currently webkit-only
+// * FIXED: if mobile and not infinite, can see wrapping slides
 // * may want to add a few helper functions, ie. return the number of slides...?
 // * will address these items once original idea is flushed out
 
@@ -35,7 +36,7 @@ var Carousel = function(container, options){
 		activeClass: 'active',
 		beforeClass: 'before',
 		afterClass: 'after',
-		slideWrap: 'ul',			// for binding touch events
+		slideWrap: '.wrap',			// for binding touch events
 		slides: 'li',
 		infinite: true
 	}
@@ -56,26 +57,26 @@ var Carousel = function(container, options){
 		var t,
 			el = document.createElement('fake'),
 			transitions = {
-			'transition': 'transitionend',
-			'OTransition': 'oTransitionEnd otransitionend',
-			'MozTransition': 'transitionend',
-			'WebkitTransition': 'webkitTransitionEnd'
-		};
+				'transition': 'transitionend',
+				'OTransition': 'oTransitionEnd otransitionend',
+				'MozTransition': 'transitionend',
+				'WebkitTransition': 'webkitTransitionEnd'
+			};
 		for(t in transitions){
 			if( el.style[t] !== undefined ){ return transitions[t]; }
 		}
 		return false;
 	})();
-	this.transform = (function(){
-		var transforms = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' '),
-			i = transforms.length,
-			el = document.createElement('fake');
+	// this.transform = (function(){
+	// 	var transforms = 'transform WebkitTransform MozTransform OTransform'.split(' '),
+	// 		i = transforms.length,
+	// 		el = document.createElement('fake');
 
-		for (i; --i;) {
-			if ( el.style[ transforms[i] ] !== undefined) { return transforms[i]; }
-    }
-    return false;
-	})();
+	// 	for (i; --i;) {
+	// 		if ( el.style[ transforms[i] ] !== undefined) { return transforms[i]; }
+	// 	}
+	// 	return false;
+	// })();
 
 	this.init(options);
 
@@ -93,21 +94,22 @@ Carousel.prototype = {
 		this.options = this._extend( this.defaults, options );
 
 		this.slideWrap = this.el.querySelector(this.options.slideWrap);
-		this.slides = this.el.querySelectorAll(this.options.slides);
+		this.slides = this.slideWrap.children;
 
-		if (!this.slideWrap || !this.slides.length) { return; }									// maybe throw an error, here
-		if (this.slides.length < 3) { this.options.infinite = false; }					// need at least 3 slides for this to work
+		if (!this.slideWrap || !this.slides.length) { return; }								// maybe throw an error, here
+		if (this.slides.length < 3) { this.options.infinite = false; }						// need at least 3 slides for this to work
 
-		this.before = this.slides.length - 1;
-		this.after = 1;
+		this._setIndices(0);
 
-		this.slides[ this.before ] .classList.add( this.options.beforeClass );
-		this.slides[ this.current ].classList.add( this.options.activeClass );
-		this.slides[ this.after ]  .classList.add( this.options.afterClass );
+		this._addClass( this.before, this.options.beforeClass);
+		this._addClass( this.current, this.options.activeClass );
+		this._addClass( this.after, this.options.afterClass );
 
-		this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));		// ecma5 bind
-		this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));					// ecma5 bind
-		this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));			// ecma5 bind
+		if ( this.options.noTouch === undefined ) {			// [TODO] this condition
+			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));		// ecma5 bind
+			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));				// ecma5 bind
+			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));			// ecma5 bind
+		}
 		// this.el.addEventListener('mousedown',		this.dragStart.bind(this));
 		// this.el.addEventListener('mousemove',		this.drag.bind(this));
 		// this.el.addEventListener('mouseup',			this.dragEnd.bind(this));
@@ -118,6 +120,7 @@ Carousel.prototype = {
 		// 	this.width = this.slideWrap.offsetWidth;
 		// }.bind(this));
 
+
 		return this;
 	},
 
@@ -125,103 +128,118 @@ Carousel.prototype = {
 	 * Go to the next slide
 	 * @return {void}
 	 */
-	next: function(){
-		this.go(this.current + 1);
+	next: function() {
+		if (this.after !== null && !this.sliding) {
+			this.slides[ this.current ].classList.add( this.options.beforeClass );
+			this._move(this.current + 1);
+		}
 	},
 
 	/**
 	 * Go to the previous slide
 	 * @return {void}
 	 */
-	prev: function(){
-		this.go(this.current - 1);
+	prev: function() {
+		if (this.before !== null && !this.sliding) {
+			this.slides[ this.current ].classList.add( this.options.afterClass );
+			this._move(this.current - 1);
+		}
 	},
 
 	/**
-	 * Go to a particular slide
+	 * Go to a particular slide. Prime the "to" slide by positioning it, and then calling _move()
 	 * @param  {int} to Slide to display
 	 * @return {void}
 	 */
-	go: function( to ){
+	go: function(to) {
 
-		var direction,
-			c = this;
+		var direction;
 
-    	// determine direction:  1: backward, -1: forward. Do this before we % it
-    	direction = Math.abs(this.current - to) / (this.current - to);
+		// check bounds
+		to = Math.max( Math.min(this.slides.length-1, to), 0);
 
-    	// check bounds
-	    if (this.options.infinite) { to = this._loop(to); }
-	    else { to = Math.max( Math.min(this.slides.length-1, to), 0); }
-
-	    // dont do nuthin if we dont need to
+		// dont do nuthin if we dont need to
 		if (to == this.current || this.sliding) { return; }
 
-
+		// determine direction:  1: backward, -1: forward. Do this before we % it
+		direction = Math.abs(this.current - to) / (this.current - to);
 
 		// prime the slides: position the ones we're going to and moving from
-		// var diff = to - this.current;
-		// if (Math.abs(diff) > 1) {
 		if (direction > 0) {
-	    	this.slides[ to ].classList.add( this.options.beforeClass, 'no-trans' );
-			this.slides[ to ].classList.remove( this.options.afterClass );				// only need if .after follows .before in css
-			this.slides[ this.current ].classList.add( this.options.afterClass );		// this slide will not move just yet, so long as "active" is also present
+			// this.slides[ to ].classList.add( this.options.beforeClass, 'no-trans' );
+			this._addClass( to, this.options.beforeClass );
+			this._removeClass( to, this.options.afterClass );							// edge case, going from last to first
+			this._addClass( this.current, this.options.afterClass );					// this slide will not move just yet, so long as "active" is also present
 		} else {
-	    	this.slides[ to ].classList.add( this.options.afterClass, 'no-trans' );
-			this.slides[ this.current ].classList.add( this.options.beforeClass );
+			this._addClass( to, this.options.afterClass );
+			this._addClass( this.current, this.options.beforeClass );
 		}
+
+		// [TODO] experiment with better ways to achieve this
 		this.slides[ to ].offsetHeight;													// force a repaint to actually position "to" slide. *Important*
-		this.slides[ to ].classList.remove( 'no-trans' );
-		// }
 
-
-		// start the transition
-		// this._slideStart(to, this.current);
-		this.sliding = true;
-
-		this.slides[ to ].classList.add( this.options.activeClass );
-		this.slides[ this.current ].classList.remove( this.options.activeClass );
-		this.slides[ to ].classList.remove( this.options.beforeClass, this.options.afterClass );
-
-		this.current = to;
-
-
-
-		if (this.transitionEnd) {
-			this.slides[ to ].addEventListener(c.transitionEnd, function end(){
-				this.removeEventListener(c.transitionEnd, end);
-				c._slideEnd();
-			});
-		} else {
-			this._slideEnd();
-		}
-
+		this._move(to);
 	},
 
-	// _slideStart: function(to, from) {
-	// 	this.sliding = true;
+	// ------------------------------------- "private" starts here ------------------------------------- //
 
-	// 	this.slides[ to ].classList.add( this.options.activeClass );
-	// 	this.slides[ from ].classList.remove( this.options.activeClass );
-	// 	this.slides[ to ]  .classList.remove( this.options.beforeClass, this.options.afterClass );
+	/**
+	 * Start the carousel animation
+	 * @return {[type]} [description]
+	 */
+	_move: function(to) {
 
-	// 	this.current = to;
-	// },
+		var c;
 
-	_slideEnd: function() {
+		to = this._loop(to);
+
+		if (this.options.beforeSlide) { this.options.beforeSlide(to, this.current); }	// note: doesn't check if is a function
+
+		// start the transition
+		this._addClass( to, 'animate' );
+		this._addClass( this.current, 'animate' );
+		this._addClass( to, this.options.activeClass );
+		this._removeClass( this.current, this.options.activeClass );
+
+		this._removeClass( to, this.options.beforeClass );
+		this._removeClass( to, this.options.afterClass );
+
+		// end the transition. NOTE: if this isn't firing, check your CSS
+		if (this.transitionEnd) {
+			c = this;
+			this.slides[ to ].addEventListener(c.transitionEnd, function end(){
+				this.removeEventListener(c.transitionEnd, end);
+				c._moveEnd(to);
+			});
+			this.sliding = true;
+		} else {
+			this._moveEnd(to);
+		}
+	},
+
+	/**
+	 * [ description]
+	 * @return {[type]} [description]
+	 */
+	_moveEnd: function(to) {
+		this._removeClass( to, 'animate' );
+		this._removeClass( this.current, 'animate' );
+
+		// update indices
+		this._setIndices(to);
+
+		// position the new before and after slides
+		this._addClass( this.before, this.options.beforeClass );
+		this._addClass( this.after, this.options.afterClass );
+
+
+		this._removeClass( this.before, this.options.afterClass );	// remove stragglers
+		this._removeClass( this.after, this.options.beforeClass );	//
+
+
+		if (this.options.afterSlide) { this.options.afterSlide(this.current); }
+
 		this.sliding = false;
-
-		// if (this.touch) {
-			// setup prev / next indices
-			this.before  = this._loop(this.current - 1);
-			this.after   = this._loop(this.current + 1);
-
-			this.slides[this.before].classList.remove( this.options.afterClass );
-			this.slides[this.after] .classList.remove( this.options.beforeClass );
-
-			this.slides[this.before].classList.add( this.options.beforeClass );
-			this.slides[this.after] .classList.add( this.options.afterClass );
-		// }
 	},
 
 	/**
@@ -238,17 +256,12 @@ Carousel.prototype = {
 		if (e.touches) {
 			e = e.touches[0];
 		}
+
 		if (this.dragging === 0) {
 			this.dragging = 1;
 			this.pixelOffset = 0;
 			this.startClientX = e.clientX;
-
 			this.touchPixelRatio = 1;
-
-			this.slides[ this.current ].classList.add( 'no-trans' );
-			this.slides[ this.before ] .classList.add( 'no-trans' );
-			this.slides[ this.after ]  .classList.add( 'no-trans' );
-
 		}
 	},
 
@@ -265,14 +278,12 @@ Carousel.prototype = {
 			e = e.touches[0];
 		}
 
-
 		// at the beginning going more beginninger, or at the end going more ender-er
 		// if ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX)) {
 		// 	this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
 		// } else {
 		//	 this.touchPixelRatio = 1;
 		// }
-
 
 		this.delta = e.clientX - this.startClientX;
 
@@ -283,11 +294,6 @@ Carousel.prototype = {
 			this._translate( this.before, (this.pixelOffset - this.width) );
 			this._translate( this.current, this.pixelOffset);
 			this._translate( this.after,  (this.pixelOffset + this.width) );
-
-			// this.slides[ this.before ] .style.webkitTransform = 'translate(' + (this.pixelOffset - this.width) + 'px, 0)';
-			// this.slides[ this.current ].style.webkitTransform = 'translate(' + this.pixelOffset + 'px, 0)';
-			// this.slides[ this.after ]  .style.webkitTransform = 'translate(' + (this.pixelOffset + this.width) + 'px, 0)';
-
 		}
 	},
 
@@ -297,21 +303,31 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	_dragEnd: function(e) {
-			this.dragging = 0;
+		var i;
 
-			this.slides[ this.current ].classList.remove( 'no-trans' );
-			this.slides[ this.before ] .classList.remove( 'no-trans' );
-			this.slides[ this.after ]  .classList.remove( 'no-trans' );
+		this.dragging = 0;
 
-			this.slides[ this.current].style.webkitTransform = '';
+		if ( Math.abs(this.pixelOffset) > this.dragThreshold ) {
+			this.pixelOffset < 0 ? this.next() : this.prev();
+		}
 
-			if ( Math.abs(this.pixelOffset) > this.dragThreshold ) {
-				var to = this.pixelOffset < 0 ? this.current + 1 : this.current - 1;
-				this.go(to);
-			}
+		for (i = this.slides.length; i--;) {
+			this.slides[i].style.webkitTransform = '';
+		}
 
-			this.slides[ this.before] .style.webkitTransform = '';
-			this.slides[ this.after ] .style.webkitTransform = '';
+	},
+
+	// ------------------------------------- "helper" functions ------------------------------------- //
+
+	/**
+	 * [ description]
+	 * @param  {[type]} to [description]
+	 * @return {[type]}    [description]
+	 */
+	_setIndices: function(to) {
+		this.current = to;
+		this.before = (!this.options.infinite && this.current == 0) ? null : this._loop(to - 1);
+		this.after  = (!this.options.infinite && this.current == this.slides.length-1) ? null : this._loop(to + 1);
 	},
 
 	/**
@@ -324,17 +340,46 @@ Carousel.prototype = {
 	},
 
 	/**
+	 * Helper function to add a class to an element
+	 * @param  {int} i    Index of the slide to add a class to
+	 * @param  {string} name Class name
+	 * @return {void}
+	 */
+	_addClass: function(i, name) {
+		var el;
+		if (i === null) return;
+		el = this.slides[i];
+		if (el.classList) { el.classList.add(name); }
+		else {el.className += ' ' + name; }
+	},
+
+	/**
+	 * Helper function to remove a class from an element
+	 * @param  {int} i    Index of the slide to remove class from
+	 * @param  {string} name Class name
+	 * @return {void}
+	 */
+	_removeClass: function(i, name) {
+		var el;
+		if (i === null) return;
+		el = this.slides[i];
+		if (el.classList) { el.classList.remove(name); }
+		else { el.className = el.className.replace(new RegExp('(^|\\b)' + name.split(' ').join('|') + '(\\b|$)', 'gi'), ' '); }
+	},
+
+	/**
 	 * Helper function to translate slide in browser
 	 * @param  {[type]} el     [description]
 	 * @param  {[type]} offset [description]
 	 * @return {[type]}        [description]
 	 */
 	_translate: function(i, offset) {
-			this.slides[ i ] .style.webkitTransform = 'translate(' + offset + 'px, 0)';
+		if (i === null) return;
+		this.slides[ i ] .style.webkitTransform = 'translate(' + offset + 'px, 0)';
 	},
 
 	/**
-	 * Helper function. Ripped from underscore
+	 * Helper function. Ripped from underscore and modified
 	 * @param  {object} obj A list of objects to extend
 	 * @return {object}     The extended object
 	 */
@@ -352,8 +397,9 @@ Carousel.prototype = {
 };
 
 
-
-
+/**
+ * Make a plugin out of the Carousel
+ */
 if ( window.jQuery || window.Zepto ) {
 	(function($) {
 		$.fn.carousel = function(method) {
@@ -384,7 +430,4 @@ if ( window.jQuery || window.Zepto ) {
 		};
 	})( window.jQuery || window.Zepto );
 }
-
-
-
 
