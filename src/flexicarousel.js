@@ -48,7 +48,7 @@ var Carousel = function(container, options){
 	this.startClientX = 0;
 	this.pixelOffset = 0;
 	this.touchPixelRatio = 1;
-	this.dragThreshold = 80;
+	this.dragThreshold = 100;
 
 	// browser capabilities
 	// --------------------
@@ -198,8 +198,8 @@ Carousel.prototype = {
 		// start the transition
 		this._addClass( to, 'animate' );
 		this._addClass( this.current, 'animate' );
-		this._addClass( to, this.options.activeClass );
-		this._removeClass( this.current, this.options.activeClass );
+		this._removeClass( this.current, this.options.activeClass );					// make this first and ,..
+		this._addClass( to, this.options.activeClass );									// make this after in the rare cases when we move to the same slide (ie. dragging a bit and snapping back)
 
 		this._removeClass( to, this.options.beforeClass );
 		this._removeClass( to, this.options.afterClass );
@@ -279,10 +279,10 @@ Carousel.prototype = {
 		}
 
 		// at the beginning going more beginninger, or at the end going more ender-er
-		// if ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX)) {
+		// if (!this.infinite && ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX))) {
 		// 	this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
 		// } else {
-		//	 this.touchPixelRatio = 1;
+			 this.touchPixelRatio = 1;
 		// }
 
 		this.delta = e.clientX - this.startClientX;
@@ -305,16 +305,29 @@ Carousel.prototype = {
 	_dragEnd: function(e) {
 		var i;
 
+		if (this.dragging == 0) {
+			return false;
+		}
+
 		this.dragging = 0;
 
-		if ( Math.abs(this.pixelOffset) > this.dragThreshold ) {
-			this.pixelOffset < 0 ? this.next() : this.prev();
+		if (this.pixelOffset < 0) {
+			if ( Math.abs(this.pixelOffset) < this.dragThreshold || this.after === null )
+				this._move(this.current);
+			else
+				this.next();
 		}
+		else if (this.pixelOffset > 0) {
+			if ( this.pixelOffset < this.dragThreshold || this.before === null )
+				this._move(this.current);
+			else
+				this.prev();
+		}
+
 
 		for (i = this.slides.length; i--;) {
 			this.slides[i].style.webkitTransform = '';
 		}
-
 	},
 
 	// ------------------------------------- "helper" functions ------------------------------------- //
