@@ -41,7 +41,7 @@ module.exports = function(grunt) {
       options: {
         curly: true,
         // eqeqeq: true,
-        immed: true,
+        // immed: true,
         latedef: true,
         newcap: true,
         noarg: true,
@@ -50,6 +50,9 @@ module.exports = function(grunt) {
         boss: true,
         eqnull: true,
         browser: true
+
+		/*jslint eqeq:true, browser:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
+
       },
       globals: {
         // jQuery: true

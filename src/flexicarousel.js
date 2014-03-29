@@ -7,7 +7,7 @@
  *
  */
 
-/*jslint eqeq: true, browser: true, debug: true, evil: false, devel: true*/
+/*jslint eqeq:true, browser:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
 
 
 
@@ -39,7 +39,7 @@ var Carousel = function(container, options){
 		slideWrap: '.wrap',			// for binding touch events
 		slides: 'li',
 		infinite: true
-	}
+	};
 
 	// touch vars
 	// --------------------
@@ -67,16 +67,16 @@ var Carousel = function(container, options){
 		}
 		return false;
 	})();
-	// this.transform = (function(){
-	// 	var transforms = 'transform WebkitTransform MozTransform OTransform'.split(' '),
-	// 		i = transforms.length,
-	// 		el = document.createElement('fake');
+	//this.transform = (function(){
+	//	var transforms = 'transform WebkitTransform MozTransform OTransform'.split(' '),
+	//		i = transforms.length,
+	//		el = document.createElement('fake');
 
-	// 	for (i; --i;) {
-	// 		if ( el.style[ transforms[i] ] !== undefined) { return transforms[i]; }
-	// 	}
-	// 	return false;
-	// })();
+	//	for (i; --i;) {
+	//		if ( el.style[ transforms[i] ] !== undefined) { return transforms[i]; }
+	//	}
+	//	return false;
+	//})();
 
 	this.init(options);
 
@@ -117,7 +117,7 @@ Carousel.prototype = {
 		// only need width for touch, so resize listener is not necessary
 		this.width = this.slideWrap.offsetWidth;
 		// window.addEventListener('resize', function(){
-		// 	this.width = this.slideWrap.offsetWidth;
+		//  this.width = this.slideWrap.offsetWidth;
 		// }.bind(this));
 
 
@@ -176,7 +176,8 @@ Carousel.prototype = {
 		}
 
 		// [TODO] experiment with better ways to achieve this
-		this.slides[ to ].offsetHeight;													// force a repaint to actually position "to" slide. *Important*
+		// force a repaint to actually position "to" slide. *Important*
+		this.slides[ to ].offsetHeight;	// jshint ignore:line
 
 		this._move(to);
 	},
@@ -280,7 +281,7 @@ Carousel.prototype = {
 
 		// at the beginning going more beginninger, or at the end going more ender-er
 		// if (!this.infinite && ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX))) {
-		// 	this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
+		//  this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
 		// } else {
 			 this.touchPixelRatio = 1;
 		// }
@@ -305,23 +306,27 @@ Carousel.prototype = {
 	_dragEnd: function(e) {
 		var i;
 
-		if (this.dragging == 0) {
+		if (this.dragging === 0) {
 			return false;
 		}
 
 		this.dragging = 0;
 
 		if (this.pixelOffset < 0) {
-			if ( Math.abs(this.pixelOffset) < this.dragThreshold || this.after === null )
+			if ( Math.abs(this.pixelOffset) < this.dragThreshold || this.after === null ) {
 				this._move(this.current);
-			else
+			}
+			else {
 				this.next();
+			}
 		}
 		else if (this.pixelOffset > 0) {
-			if ( this.pixelOffset < this.dragThreshold || this.before === null )
+			if ( this.pixelOffset < this.dragThreshold || this.before === null ) {
 				this._move(this.current);
-			else
+			}
+			else {
 				this.prev();
+			}
 		}
 
 
@@ -339,7 +344,7 @@ Carousel.prototype = {
 	 */
 	_setIndices: function(to) {
 		this.current = to;
-		this.before = (!this.options.infinite && this.current == 0) ? null : this._loop(to - 1);
+		this.before = (!this.options.infinite && this.current === 0) ? null : this._loop(to - 1);
 		this.after  = (!this.options.infinite && this.current == this.slides.length-1) ? null : this._loop(to + 1);
 	},
 
@@ -360,7 +365,7 @@ Carousel.prototype = {
 	 */
 	_addClass: function(i, name) {
 		var el;
-		if (i === null) return;
+		if (i === null) { return; }
 		el = this.slides[i];
 		if (el.classList) { el.classList.add(name); }
 		else {el.className += ' ' + name; }
@@ -374,7 +379,7 @@ Carousel.prototype = {
 	 */
 	_removeClass: function(i, name) {
 		var el;
-		if (i === null) return;
+		if (i === null) { return; }
 		el = this.slides[i];
 		if (el.classList) { el.classList.remove(name); }
 		else { el.className = el.className.replace(new RegExp('(^|\\b)' + name.split(' ').join('|') + '(\\b|$)', 'gi'), ' '); }
@@ -387,7 +392,7 @@ Carousel.prototype = {
 	 * @return {[type]}        [description]
 	 */
 	_translate: function(i, offset) {
-		if (i === null) return;
+		if (i === null) { return; }
 		this.slides[ i ] .style.webkitTransform = 'translate(' + offset + 'px, 0)';
 	},
 
