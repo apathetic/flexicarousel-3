@@ -15,12 +15,12 @@ commonly available carousels out there. This projects seeks to remedy that.
 A carousel may work fine on desktop, where styles are added or removed by the Javascript causing the position of the carousel's slides to update 
 accordingly. Different styles can allow for a variety of interesting transitions and effects using CSS3 transforms and transitions. However, 
 this paradigm suffers on mobile, where touch interactions and continuous control over a slide's position (ie. via dragging) are desired. 
-Touch-enabled carousels achieve this by positioning a slide manually via translate; the result of this approach is that the "classic" CSS-based 
-system of control is no longer compatible with this inlined manual positioning. Workarounds usually revolve around managing all effects,
+Touch-enabled carousels usually achieve this by positioning a slide manually via _translate()_; the result of this approach is that the "classic" 
+CSS-based system of control is not compatible with this inlined manual positioning. Workarounds usually revolve around managing all effects,
 transitions, etc. with the Javascript -- which always results in larger files sizes, more instantiation arguments and custom animation functions.
 
 One architecture may work well for mobile, but is less than optimal on desktop; contrariwise, using CSS to position a slide works well on desktop
-but undermines a native touch-UI paradigm as it circumvents dragging.
+but is undermined by a native touch-UI paradigm.
 
 ##Solution
 
@@ -35,21 +35,34 @@ Download the [production version][min] or the [development version][max].
 [min]: https://raw.github.com/apathetic/flexicarousel/master/dist/flexicarousel.min.js
 [max]: https://raw.github.com/apathetic/flexicarousel/master/dist/flexicarousel.js
 
-In your web page:
+Include the relevant scripts in your web page, and then:
 
 ```html
-<script src="jquery.js"></script>
-<script src="flexicarousel.min.js"></script>
 <script>
+
+	// availble options
+	var options = {
+		activeClass: 'active',
+		beforeClass: 'before',
+		afterClass: 'after',
+		slideWrap: '.wrap',
+		slides: 'li',
+		infinite: true,
+		beforeSlide,		// function to execute before sliding
+		afterSlide,			// function to execute after sliding
+		noTouch: false		// if you'd like to disable the touch UI for whatever reason
+	};
+
+	// as a jQuery plugin
 	jQuery(function($) {
 		$('.carousel').carousel({
-			// options
+			options
 		});
 	});
 
 	// or, without jquery if you prefer:
 	var container = document.querySelector('.carousel');
-	var carousel = new Carousel(container);
+	var carousel = new Carousel(container, options);
 
 </script>
 ```
