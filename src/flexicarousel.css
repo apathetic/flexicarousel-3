@@ -2,7 +2,7 @@
  * flexicarousel
  * https://github.com/apathetic/flexicarousel-2
  *
- * Copyright (c) 2013 Wes Hatch
+ * Copyright (c) 2014 Wes Hatch
  * Licensed under the MIT license.
  */
 
@@ -42,14 +42,31 @@
             transform: translateX(0);
 }
 
+.ie8 .carousel.slide li.active { left: 0;  }
+.ie8 .carousel.slide li.before { left: -100%;  }
+.ie8 .carousel.slide li.after { left: 100%;  }
 
 
 
 /* -------------------------------------
 		FADE TRANSITIONS
 ------------------------------------- */
-.carousel.fade li.active { opacity:1 }
-.carousel.fade li { opacity:0; }
+
+.carousel.fade li.active { 
+	opacity:1
+}
+.carousel.fade li { 
+	opacity:0;
+}
+
+
+/* -------------------------------------
+		TABS
+------------------------------------- */
+.carousel.tabs li.active { opacity:1 }
+.carousel.tabs li { opacity:0; }
+
+
 
 
 
