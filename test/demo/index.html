@@ -9,11 +9,12 @@
 
 		body, html { height:100%; }
 		ul, li { margin:0; padding:0; list-style:none; }
+		hr { margin: 5em 0; }
 
 		/* -------------------------------------
 				CAROUSEL STYLES
 		------------------------------------- */
-		.carousel { width:500px; max-width:66.666%; margin:0 auto; position:relative; }
+		.carousel { width:85%; min-width:540px; max-width:1280px;; margin:0 auto; position:relative; }
 		.carousel ul { width:100%; height:300px; }
 		.carousel li { background: #ddd; }
 		.carousel li span { position:absolute; top:20px; left:20px; color:#fff; font-size:16px; }
@@ -35,7 +36,7 @@
 		.carousel nav { text-align:center; position:absolute; bottom:-24px; left:0; height:24px; margin:0; padding:0; width:100%; text-align:center; z-index:10; }
 		.carousel nav span { display:inline-block; width:10px; height:10px; margin:7px; border-radius:5px; background:#999; cursor:pointer }
 		.carousel nav span:hover { background:#ccc; }
-		.carousel nav span.active { background:#fff; }
+		.carousel nav span.active { background:purple; }
 		.carousel .next,
 		.carousel .prev { position:absolute; top:40%; height:24px; width:48px; font-size:18px; z-index:10; }
 		.carousel .prev { left:-54px; }
@@ -45,7 +46,7 @@
 				SAMPLE BREAKPOINT
 		------------------------------------- */
 		@media(min-width:1000px) {
-			.carousel { width:800px; }
+			/*.carousel { width:800px; }*/
 			.carousel ul { height:480px; }
 		}
 
@@ -67,7 +68,7 @@
 		<a href="#next" class="next" aria-hidden="true">Next</a>
 
 		<nav class="indicators">
-			<span></span>
+			<span class="active"></span>
 			<span></span>
 			<span></span>
 			<span></span>
@@ -87,7 +88,7 @@
 		<a href="#next" class="next" aria-hidden="true">Next</a>
 	</div>
 
-
+	<hr />
 
 	<h1>Fade transition</h1>
 	<div id="two" class="carousel fade">
@@ -101,6 +102,8 @@
 		<a href="#prev" class="prev" aria-hidden="true">Prev</a>
 		<a href="#next" class="next" aria-hidden="true">Next</a>
 	</div>
+
+	<hr />
 
 	<h1>Multiple transitions (not infinite)</h1>
 	<div id="three" class="carousel fade slide">
@@ -116,6 +119,7 @@
 
 	</div>
 
+	<hr />
 
 
 
@@ -126,8 +130,10 @@
 		// using jQuery
 		$(function(){
 
+			var bullets = $('#one .indicators span');
 			var car1 = $('#one').carousel({
-				// 'infinite': false
+				beforeSlide: function() { bullets.removeClass() },
+				afterSlide: function(i) { bullets.eq(i).addClass('active') }
 			});
 
 			$('#one .prev').click(function(e){

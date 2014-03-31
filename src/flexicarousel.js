@@ -280,7 +280,7 @@ Carousel.prototype = {
 		// }
 
 		// at the beginning going more beginninger, or at the end going more ender-er
-		// if (!this.infinite && ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX))) {
+		// if (this.before === null && e.clientX > this.startClientX) || (this.after === null && e.clientX < this.startClientX)) {
 		//  this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
 		// } else {
 			 this.touchPixelRatio = 1;
