@@ -18,12 +18,24 @@ module.exports = function(grunt) {
 			'src/flexicarousel.js'
 		],
         dest: 'dist/<%= pkg.name %>.js'
+      },
+      jquery: {
+        src: [
+			'<banner:meta.banner>',
+			'src/flexicarousel.js',
+			'src/jquery.flexicarousel.js'
+		],
+        dest: 'dist/jquery.<%= pkg.name %>.js'
       }
     },
     min: {
       dist: {
         src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
         dest: 'dist/<%= pkg.name %>.min.js'
+      },
+      jquery: {
+        src: ['<banner:meta.banner>', '<config:concat.jquery.dest>'],
+        dest: 'dist/jquery.<%= pkg.name %>.min.js'
       }
     },
     qunit: {
