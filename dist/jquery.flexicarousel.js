@@ -277,11 +277,11 @@ Carousel.prototype = {
 	 */
 	_drag: function(e) {
 
-		e.preventDefault();
+		// e.preventDefault();
 
-		if (e.touches) {
-			e = e.touches[0];
-		}
+		// if (e.touches) {
+		// 	e = e.touches[0];
+		// }
 
 		// at the beginning going more beginninger, or at the end going more ender-er
 		// if (!this.infinite && ((this.current === 0 && e.clientX > this.startClientX) || (this.current === this.slides.length - 1 && e.clientX < this.startClientX))) {
@@ -290,12 +290,12 @@ Carousel.prototype = {
 			 this.touchPixelRatio = 1;
 		// }
 
-		this.delta = e.clientX - this.startClientX;
+		this.delta = e.touches[0].clientX - this.startClientX;
+
+		if (this.delta > this.dragThreshold) { e.preventDefault(); }
 
 		if (this.dragging && this.delta !== 0) {
-
 			this.pixelOffset = this.delta / this.touchPixelRatio;
-
 			this._translate( this.before, (this.pixelOffset - this.width) );
 			this._translate( this.current, this.pixelOffset);
 			this._translate( this.after,  (this.pixelOffset + this.width) );
@@ -310,7 +310,7 @@ Carousel.prototype = {
 	_dragEnd: function(e) {
 		var i;
 
-		if (this.dragging === 0) {
+		if (!this.dragging) {
 			return false;
 		}
 
