@@ -13,7 +13,7 @@
 
 // NOTES:
 // * still a proof of concept
-// * uses ecma5 js (ie. bind, forEach)
+// * FIXED: uses ecma5 js (ie. bind, forEach). ==> added IE8 check
 // * FIXED: uses non-IE8 friendly class manipulation (ie. classList)
 // * mobile tranforms are currently webkit-only
 // * FIXED: if mobile and not infinite, can see wrapping slides
@@ -52,7 +52,7 @@ var Carousel = function(container, options){
 
 	// browser capabilities
 	// --------------------
-	// this.touch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
+	this.isTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
 	this.transitionEnd = (function(){
 		var t,
 			el = document.createElement('fake'),
@@ -105,17 +105,17 @@ Carousel.prototype = {
 		this._addClass( this.current, this.options.activeClass );
 		this._addClass( this.after, this.options.afterClass );
 
-		if ( this.options.noTouch === undefined ) {			// [TODO] this condition
-			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));		// ecma5 bind
-			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));				// ecma5 bind
-			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));			// ecma5 bind
+		if ( this.options.noTouch === undefined && this.istouch ) {							// [TODO] this condition
+			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));	// ecma5 bind
+			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));			// ecma5 bind
+			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));		// ecma5 bind
 		}
 		// this.el.addEventListener('mousedown',		this.dragStart.bind(this));
 		// this.el.addEventListener('mousemove',		this.drag.bind(this));
 		// this.el.addEventListener('mouseup',			this.dragEnd.bind(this));
 
-		// only need width for touch, so resize listener is not necessary
 		this.width = this.slideWrap.offsetWidth;
+		// only need width for touch, so resize listener is not necessary
 		// window.addEventListener('resize', function(){
 		//  this.width = this.slideWrap.offsetWidth;
 		// }.bind(this));
@@ -130,7 +130,8 @@ Carousel.prototype = {
 	 */
 	next: function() {
 		if (this.after !== null && !this.sliding) {
-			this.slides[ this.current ].classList.add( this.options.beforeClass );
+			// this.slides[ this.current ].classList.add( this.options.beforeClass );
+			this._addClass( this.current, this.options.beforeClass );
 			this._move(this.current + 1);
 		}
 	},
@@ -141,7 +142,8 @@ Carousel.prototype = {
 	 */
 	prev: function() {
 		if (this.before !== null && !this.sliding) {
-			this.slides[ this.current ].classList.add( this.options.afterClass );
+			// this.slides[ this.current ].classList.add( this.options.afterClass );
+			this._addClass( this.current, this.options.afterClass );
 			this._move(this.current - 1);
 		}
 	},
@@ -397,18 +399,25 @@ Carousel.prototype = {
 	},
 
 	/**
-	 * Helper function. Ripped from underscore and modified
+	 * Helper function. Simple way to merge objects
 	 * @param  {object} obj A list of objects to extend
 	 * @return {object}     The extended object
 	 */
 	_extend: function(obj) {
-		Array.prototype.slice.call(arguments, 1).forEach(function (source) {
+		// Array.prototype.slice.call(arguments, 1).forEach(function (source) {		// > IE8
+		var args = Array.prototype.slice.call(arguments, 1);						// >= IE8
+		for (var i = 0; i < args.length; i++) {
+			var source = args[i];
+		// ---------------
+
 			if (source) {
 				for (var prop in source) {
 					obj[prop] = source[prop];
 				}
 			}
-		});
+
+		// });
+		}
 		return obj;
 	}
 
