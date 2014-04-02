@@ -37,6 +37,8 @@
 		.carousel nav span { display:inline-block; width:10px; height:10px; margin:7px; border-radius:5px; background:#999; cursor:pointer }
 		.carousel nav span:hover { background:#ccc; }
 		.carousel nav span.active { background:purple; }
+		.carousel nav div { display: inline-block; cursor: pointer; padding:5px; }
+		.carousel nav div.active { color:#fff; background: purple }
 		.carousel .next,
 		.carousel .prev { position:absolute; top:40%; height:24px; width:48px; font-size:18px; z-index:10; }
 		.carousel .prev { left:-54px; }
@@ -73,7 +75,6 @@
 			<span></span>
 			<span></span>
 		</nav>
-
 	</div>
 
 	<div id="one-b" class="carousel slide clipped" data-options="{infinite:true}">
@@ -121,9 +122,27 @@
 
 	<hr />
 
+	<h1>Tabs</h1>
+	<div id="four" class="carousel tabs">
+		<ul class="wrap">
+			<li class="active"><span>1</span><img src="http://lorempixel.com/800/480/nature/1" alt="" /></li>
+			<li><span>2</span><img src="http://lorempixel.com/800/480/nature/2" alt="" /></li>
+			<li><span>3</span><img src="http://lorempixel.com/800/480/nature/3" alt="" /></li>
+			<li><span>4</span><img src="http://lorempixel.com/800/480/nature/4" alt="" /></li>
+		</ul>
+
+		<nav>
+			<div class="active">one</div>
+			<div>two</div>
+			<div>three</div>
+			<div>four</div>
+		</nav>
+	</div>
+
+	<hr />
 
 
-	<script src="../../libs/jquery-2.0.0.min.js"></script>
+	<script src="../../libs/jquery-1.11.0.min.js"></script>
 	<script src="../../dist/jquery.flexicarousel.js"></script>
 	<script>
 
@@ -204,6 +223,21 @@
 			car3.next();
 		});
 
+
+		// ------------------------------------------------------------------
+		// tabs
+
+		var tabs = $('#four nav div');
+		var container4 = document.querySelector('#four');
+		var car4 = new Carousel(container4);
+
+		tabs.each(function(i){
+			$(this).click(function() {
+				car4.go(i);
+				tabs.removeClass();
+				tabs.eq(i).addClass('active');
+			});
+		});
 
 
 
