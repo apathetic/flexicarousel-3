@@ -4,18 +4,18 @@ A carousel that'll dynamically adapt its width: it will grow or shrink alongside
 
 ##Introduction
 
-Carousels are a common UI component in the web. Ideally, this component should maintain a separation of state and style. That is to say, the 
-Javascript should maintain the state of the carousel (which may be updated by interacting with an exposed API, for instance), while the CSS 
-should take care of the presentation of this state (ie. the "look and feel" of the carousel). Unfortunately, this is rarely the case for many 
-commonly available carousels out there. This projects seeks to remedy that.
+Carousels are a common UI component in the web. Ideally, this component should maintain a separation of state and style. That is to say, the
+Javascript should maintain the state of the carousel (which may be updated by interacting with an exposed API, for instance), while the CSS
+should take care of the presentation of this state (ie. the "look and feel" of the carousel). Unfortunately, this is rarely the case for many
+commonly available carousels out there. This project seeks to remedy that.
 
 
 ##Problem
 
-A carousel may work fine on desktop, where styles are added or removed by the Javascript causing the position of the carousel's slides to update 
-accordingly. Different styles can allow for a variety of interesting transitions and effects using CSS3 transforms and transitions. However, 
-this paradigm suffers on mobile, where touch interactions and continuous control over a slide's position (ie. via dragging) are desired. 
-Touch-enabled carousels usually achieve this by positioning a slide manually via _translate()_; the result of this approach is that the "classic" 
+A carousel may work fine on desktop, where styles are added or removed by the Javascript causing the position of the carousel's slides to update
+accordingly. Different styles can allow for a variety of interesting transitions and effects using CSS3 transforms and transitions. However,
+this paradigm suffers on mobile, where touch interactions and continuous control over a slide's position (ie. via dragging) are desired.
+Touch-enabled carousels usually achieve this by positioning a slide manually via _translate()_; the result of this approach is that the "classic"
 CSS-based system of control is not compatible with this inlined manual positioning. Workarounds usually revolve around managing all effects,
 transitions, etc. with the Javascript -- which always results in larger files sizes, more instantiation arguments and custom animation functions.
 
@@ -26,7 +26,7 @@ but is undermined by a native touch-UI paradigm.
 
 Flexicarousel. It enables a touch-based interface (ie. sliding slides via dragging) while also respecting the separation of state and behaviour.
 You can swipe to drag a slide yet still use CSS to control how the slide transitions will behave. You can also choose to change slides by
-using the exposed API. The carousel works on both desktop and mobile, using only CSS to control the look and feel. The result is smaller 
+using the exposed API. The carousel works on both desktop and mobile, using only CSS to control the look and feel. The result is smaller
 codebase that achieves the best of both approaches.
 
 ## Getting Started
