@@ -105,7 +105,7 @@ Carousel.prototype = {
 		this._addClass( this.current, this.options.activeClass );
 		this._addClass( this.after, this.options.afterClass );
 
-		if ( this.options.noTouch === undefined && this.istouch ) {							// [TODO] this condition
+		if ( this.options.noTouch === undefined && this.isTouch ) {							// [TODO] this condition
 			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));	// ecma5 bind
 			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));			// ecma5 bind
 			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));		// ecma5 bind

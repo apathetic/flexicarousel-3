@@ -1,4 +1,4 @@
-/*! Flexicarousel 2 - v0.3.0 - 2014-04-02
+/*! Flexicarousel 2 - v0.3.0 - 2014-04-07
 * https://github.com/apathetic/flexicarousel-2
 * Copyright (c) 2014 Wes Hatch; Licensed MIT */
 
@@ -109,7 +109,7 @@ Carousel.prototype = {
 		this._addClass( this.current, this.options.activeClass );
 		this._addClass( this.after, this.options.afterClass );
 
-		if ( this.options.noTouch === undefined && this.istouch ) {							// [TODO] this condition
+		if ( this.options.noTouch === undefined && this.isTouch ) {							// [TODO] this condition
 			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));	// ecma5 bind
 			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));			// ecma5 bind
 			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));		// ecma5 bind
