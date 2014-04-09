@@ -1,4 +1,4 @@
-/*! Flexicarousel 2 - v0.3.0 - 2014-04-07
+/*! Flexicarousel 2 - v0.3.0 - 2014-04-09
 * https://github.com/apathetic/flexicarousel-2
 * Copyright (c) 2014 Wes Hatch; Licensed MIT */
 
