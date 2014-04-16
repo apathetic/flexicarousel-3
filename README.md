@@ -30,10 +30,11 @@ using the exposed API. The carousel works on both desktop and mobile, using only
 codebase that achieves the best of both approaches.
 
 ## Getting Started
-Download the [production version][min] or the [development version][max].
+Download the [production version][min] or the [development version][max]. Or the [jquery version][jquery].
 
-[min]: https://raw.github.com/apathetic/flexicarousel/master/dist/flexicarousel.min.js
-[max]: https://raw.github.com/apathetic/flexicarousel/master/dist/flexicarousel.js
+[min]: https://github.com/apathetic/flexicarousel-2/blob/master/dist/flexicarousel.min.js
+[max]: https://github.com/apathetic/flexicarousel-2/blob/master/dist/flexicarousel.js
+[jquery]: https://github.com/apathetic/flexicarousel-2/blob/master/dist/jquery.flexicarousel.min.js
 
 Include the relevant scripts in your web page, and then:
 
