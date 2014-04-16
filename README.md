@@ -76,18 +76,21 @@ Include the relevant scripts in your web page, and then:
 	go: function(to) advances slide to the index
 
 
+## Support
+* IE8+
+* Safari / Chrome
+* Firefox
+* iOS
+* Android
 
 ## Known Issues
+* mobile tranforms are currently webkit-only
 
 ## Examples
 
 Please see the _test / demo_ directory
 
 ## Release History
-
-// NOTES:
-// * still a proof of concept
-// * mobile tranforms are currently webkit-only
 
 ### 0.0.3
 * Fixed: when snapping back to _same_ slide, prev / next slides were not getting class="animate"
