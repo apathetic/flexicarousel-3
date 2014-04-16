@@ -194,13 +194,13 @@ Carousel.prototype = {
 
 
 
-			// this.slides[ to ].addEventListener(c.transitionEnd, function end(){
-			// 	this.removeEventListener(c.transitionEnd, end);
-			// 	c._moveEnd(to);
-			// });
-			setTimeout(function() {
+			this.slides[ to ].addEventListener(c.transitionEnd, function end(){
+				this.removeEventListener(c.transitionEnd, end);
 				c._moveEnd(to);
-			}, 400);
+			});
+			// setTimeout(function() {
+			// 	c._moveEnd(to);
+			// }, 400);
 
 
 
