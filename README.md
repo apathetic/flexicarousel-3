@@ -84,6 +84,15 @@ Include the relevant scripts in your web page, and then:
 Please see the _test / demo_ directory
 
 ## Release History
+
+// NOTES:
+// * still a proof of concept
+// * mobile tranforms are currently webkit-only
+
+### 0.0.3
+* Fixed: when snapping back to _same_ slide, prev / next slides were not getting class="animate"
+* Fixed: uses ecma5 js (ie. bind, forEach). ==> added IE8 check
+
 ### 0.0.2
 * add tabs demo
 * Fixed: uses non-IE8 friendly class manipulation (ie. classList)
