@@ -1,4 +1,4 @@
-/*! Flexicarousel 2 - v0.3.0 - 2014-04-16
+/*! Flexicarousel 2 - v0.3.0 - 2014-04-21
 * https://github.com/apathetic/flexicarousel-2
 * Copyright (c) 2014 Wes Hatch; Licensed MIT */
 
@@ -38,11 +38,11 @@ var Carousel = function(container, options){
 
 	// touch vars
 	// --------------------
-	this.dragging = false;
-	this.deltaX = 0;
-	this.deltaY = 0;
-	this.startClientX = 0;
-	this.startClientY = 0;
+	// this.dragging = false;
+	// this.deltaX = 0;
+	// this.deltaY = 0;
+	// this.startClientX = 0;
+	// this.startClientY = 0;
 	// this.pixelOffset = 0;
 	// this.touchPixelRatio = 1;
 	this.dragThreshold = 40;	// 100
@@ -101,14 +101,17 @@ Carousel.prototype = {
 		this._addClass( this.current, this.options.activeClass );
 		this._addClass( this.after, this.options.afterClass );
 
+		// mobile-only setup
 		if ( this.options.noTouch === undefined && this.isTouch ) {								// [TODO] this condition
 			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));
 			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));
 			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));
-		}
 
-		// for touch (ie. resize listener is not necessary)
-		this.width = this.slideWrap.offsetWidth;
+			// for touch (ie. resize listener is not necessary)
+			this.width = this.slideWrap.offsetWidth;
+			this._orientationChange = function() { this.width = this.slideWrap.offsetWidth; console.log(this.width); }
+			window.addEventListener('orientationchange', this._orientationChange.bind(this));
+		}
 
 		return this;
 	},
@@ -192,24 +195,10 @@ Carousel.prototype = {
 		if (this.transitionEnd) {
 			c = this;
 
-
-
-
-
-
-
 			this.slides[ to ].addEventListener(c.transitionEnd, function end(){
-				this.removeEventListener(c.transitionEnd, end);
+				this.removeEventListener(c.transitionEnd, end);							// don't keep any unnec. event listeners around
 				c._moveEnd(to);
 			});
-			// setTimeout(function() {
-			// 	c._moveEnd(to);
-			// }, 400);
-
-
-
-
-
 
 			this.sliding = true;
 		} else {
@@ -232,7 +221,7 @@ Carousel.prototype = {
 		this._addClass( this.before, this.options.beforeClass );
 		this._addClass( this.after, this.options.afterClass );
 
-		// remove stragglers. edge case
+		// remove stragglers. edge cases
 		this._removeClass( this.before, this.options.afterClass );
 		this._removeClass( this.after, this.options.beforeClass );
 
@@ -256,20 +245,11 @@ Carousel.prototype = {
 			e = e.touches[0];
 		}
 
-
-			// dx = 0;
-			// dy = 0;
-			this.dragThresholdMet = false;
-
-
-		// if (this.dragging === 0) {
+		this.dragThresholdMet = false;
 		this.dragging = true;
 		this.cancel = false;
-		// this.pixelOffset = 0;
-		// this.touchPixelRatio = 1;
 		this.startClientX = e.clientX;
 		this.startClientY = e.clientY;
-		// }
 	},
 
 	/**
@@ -284,10 +264,8 @@ Carousel.prototype = {
 			return;
 		}
 
-		// this.delta = e.touches[0].clientX - this.startClientX;
 		this.deltaX = e.touches[0].clientX - this.startClientX;
 		this.deltaY = e.touches[0].clientY - this.startClientY;
-
 
 
 
@@ -296,11 +274,11 @@ Carousel.prototype = {
 		if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY) && (abs(this.deltaX) > this.dragThreshold)) {
 			this.dragThresholdMet = true;
 			e.preventDefault();
-			// ....
 		} else if ((abs(this.deltaY) > abs(this.deltaX)) && (abs(this.deltaY) > this.dragThreshold)) {
 			this.cancel = true;
 			return;
 		}
+		// old way:
 		// if (this.delta > this.dragThreshold) {
 		// 	e.preventDefault();
 		// }

@@ -63,7 +63,7 @@ module.exports = function(grunt) {
         eqnull: true,
         browser: true
 
-		/*jslint eqeq:true, browser:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
+		/*jslint eqeq:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
 
       },
       globals: {
