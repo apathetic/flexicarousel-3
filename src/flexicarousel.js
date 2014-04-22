@@ -30,18 +30,12 @@ var Carousel = function(container, options){
 	this.current = 0;
 	this.slides = [];
 	this.sliding = false;
-	this.width = 0;
 
 	// touch vars
 	// --------------------
-	// this.dragging = false;
-	// this.deltaX = 0;
-	// this.deltaY = 0;
-	// this.startClientX = 0;
-	// this.startClientY = 0;
-	// this.pixelOffset = 0;
-	// this.touchPixelRatio = 1;
+	this.dragging = false;
 	this.dragThreshold = 40;	// 100
+	this.width = 0;
 
 	// browser capabilities
 	// --------------------
@@ -71,6 +65,8 @@ var Carousel = function(container, options){
 	//	return false;
 	//})();
 
+	// engage engines
+	// --------------------
 	this.init(options);
 
 };
@@ -344,6 +340,29 @@ Carousel.prototype = {
 				c.slides[i].style.webkitTransform = '';
 			}
 		}, 1);
+	},
+
+	/**
+	 * Destroy carousel
+	 * @return {void}
+	 */
+	_destroy: function() {
+		console.log('destroy', this);
+		// reset slides
+		this._moveEnd(0);
+
+		// remove listeners
+		this.slideWrap.removeEventListener('touchstart', this._dragStart);
+		this.slideWrap.removeEventListener('touchmove', this._drag);
+		this.slideWrap.removeEventListener('touchend', this._dragEnd);
+		window.removeEventListener('orientationchange', this._orientationChange);
+
+		// cleanup ...??
+		this.el = null;
+		this.defaults = null;
+		this.options = null;
+		this.slides = null;
+		this.slideWrap = null;
 	},
 
 	// ------------------------------------- "helper" functions ------------------------------------- //
