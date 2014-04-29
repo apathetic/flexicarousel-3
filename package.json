@@ -1,6 +1,25 @@
 {
   "name": "flexicarousel",
-  "version": "0.0.0-ignored",
+  "title": "Flexicarousel 2",
+  "version": "0.0.3",
+  "description": "A carousel that'll dynamically adapt its width: it will grow or shrink alongside a site that’s resizing via css media queries. Uses CSS3 transforms for its transitions and is touch-enabled",
+  "author": {
+    "name": "Wes Hatch",
+    "email": "whatch@hugeinc.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apathetic/flexicarousel-2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apathetic/flexicarousel-2/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/apathetic/flexicarousel-2/blob/master/LICENSE-MIT"
+    }
+  ],
   "engines": {
     "node": ">= 0.6.0"
   },
@@ -8,6 +27,12 @@
     "test": "grunt qunit"
   },
   "devDependencies": {
-    "grunt": "~0.3.17"
+    "grunt": "~0.4.2",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-connect": "~0.6.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-uglify": "^0.4.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "matchdep": "~0.1.2"
   }
 }

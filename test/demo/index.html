@@ -10,6 +10,7 @@
 		body, html { height:100%; }
 		ul, li { margin:0; padding:0; list-style:none; }
 		hr { margin: 5em 0; }
+		button { display: inline-block; }
 
 		/* -------------------------------------
 				CAROUSEL STYLES
@@ -139,6 +140,12 @@
 		</nav>
 	</div>
 
+	<div style="text-align:center; padding: 50px;">
+		<button onclick="create()">create</button>
+		<button onclick="destroy()">destroy</button>
+	</div>
+
+
 	<hr />
 
 
@@ -225,11 +232,11 @@
 
 
 		// ------------------------------------------------------------------
-		// tabs
+		// tabs + create / destroy
 
 		var tabs = $('#four nav div');
 		var container4 = document.querySelector('#four');
-		var car4 = new Carousel(container4);
+		var car4;
 
 		tabs.each(function(i){
 			$(this).click(function() {
@@ -239,6 +246,15 @@
 			});
 		});
 
+		function create() {
+			car4 = new Carousel(container4);
+		}
+
+		function destroy() {
+			car4.destroy();
+		}
+
+		create();
 
 
 	</script>

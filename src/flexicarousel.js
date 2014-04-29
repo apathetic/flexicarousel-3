@@ -94,14 +94,14 @@ Carousel.prototype = {
 		this._addClass( this.after, this.options.afterClass );
 
 		// mobile-only setup
-		if ( this.options.noTouch === undefined && this.isTouch ) {								// [TODO] this condition
-			this.slideWrap.addEventListener('touchstart',	this._dragStart.bind(this));
-			this.slideWrap.addEventListener('touchmove',	this._drag.bind(this));
-			this.slideWrap.addEventListener('touchend',		this._dragEnd.bind(this));
+		if ( this.options.noTouch === undefined && this.isTouch ) {
+			this.slideWrap.addEventListener('touchstart', this._dragStart.bind(this));
+			this.slideWrap.addEventListener('touchmove', this._drag.bind(this));
+			this.slideWrap.addEventListener('touchend', this._dragEnd.bind(this));
 
 			// for touch (ie. resize listener is not necessary)
 			this.width = this.slideWrap.offsetWidth;
-			this._orientationChange = function() { this.width = this.slideWrap.offsetWidth; }
+			this._orientationChange = function() { this.width = this.slideWrap.offsetWidth; };
 			window.addEventListener('orientationchange', this._orientationChange.bind(this));
 		}
 
@@ -158,6 +158,53 @@ Carousel.prototype = {
 		this.slides[ to ].offsetHeight;	// jshint ignore:line
 
 		this._move(to);
+	},
+
+	/**
+	 * Destroy carousel
+	 * @return {void}
+	 */
+	destroy: function() {
+		console.log('destroy', this);
+		// reset slides
+		// this._moveEnd(0);
+
+		// remove listeners
+		this.slideWrap.removeEventListener('touchstart', this._dragStart);
+		this.slideWrap.removeEventListener('touchmove', this._drag);
+		this.slideWrap.removeEventListener('touchend', this._dragEnd);
+		window.removeEventListener('orientationchange', this._orientationChange);
+
+		// cleanup ...??
+		// this.el = null;
+		// this.defaults = null;
+		// this.options = null;
+		// this.slides = null;
+		// this.slideWrap = null;
+		// this.transitionEnd = null;
+
+		// isTouch
+		// dragging
+		// sliding
+		// current
+		// before
+		// after
+		// dragThresholdMet
+		// dragging
+		// cancel
+		// startClientX
+		// startClientY
+
+
+
+		// remove DOM references
+		for (var property in this) {		// overkill
+			delete this[property];
+		}
+		// OR, just:
+		// this.slides = this.slideWrap = this.el = null
+
+
 	},
 
 	// ------------------------------------- "private" starts here ------------------------------------- //
@@ -259,9 +306,6 @@ Carousel.prototype = {
 		this.deltaX = e.touches[0].clientX - this.startClientX;
 		this.deltaY = e.touches[0].clientY - this.startClientY;
 
-
-
-
 		// determine if we should do slide, or cancel and let the event pass through to the page
 		if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY) && (abs(this.deltaX) > this.dragThreshold)) {
 			this.dragThresholdMet = true;
@@ -270,14 +314,6 @@ Carousel.prototype = {
 			this.cancel = true;
 			return;
 		}
-		// old way:
-		// if (this.delta > this.dragThreshold) {
-		// 	e.preventDefault();
-		// }
-
-
-
-
 
 		// at the beginning going more beginninger, or at the end going more ender-er
 		// if (this.before === null && e.clientX > this.startClientX) || (this.after === null && e.clientX < this.startClientX)) {
@@ -340,29 +376,6 @@ Carousel.prototype = {
 				c.slides[i].style.webkitTransform = '';
 			}
 		}, 1);
-	},
-
-	/**
-	 * Destroy carousel
-	 * @return {void}
-	 */
-	_destroy: function() {
-		console.log('destroy', this);
-		// reset slides
-		this._moveEnd(0);
-
-		// remove listeners
-		this.slideWrap.removeEventListener('touchstart', this._dragStart);
-		this.slideWrap.removeEventListener('touchmove', this._drag);
-		this.slideWrap.removeEventListener('touchend', this._dragEnd);
-		window.removeEventListener('orientationchange', this._orientationChange);
-
-		// cleanup ...??
-		this.el = null;
-		this.defaults = null;
-		this.options = null;
-		this.slides = null;
-		this.slideWrap = null;
 	},
 
 	// ------------------------------------- "helper" functions ------------------------------------- //
@@ -432,16 +445,7 @@ Carousel.prototype = {
 	 * @return {object}     The extended object
 	 */
 	_extend: function(obj) {
-		// Array.prototype.slice.call(arguments, 1).forEach(function (source) {		// > IE8
-		// 	if (source) {
-		// 		for (var prop in source) {
-		// 			obj[prop] = source[prop];
-		// 		}
-		// 	}
-		// });
-		// return obj;
-
-		var args = Array.prototype.slice.call(arguments, 1);						// >= IE8
+		var args = Array.prototype.slice.call(arguments, 1);
 		for (var i = 0; i < args.length; i++) {
 			var source = args[i];
 			if (source) {
