@@ -93,16 +93,16 @@ Please see the _test / demo_ directory
 
 ## Release History
 
-### 0.0.3
+### 0.3
 * Fixed: when snapping back to _same_ slide, prev / next slides were not getting class="animate"
 * Fixed: uses ecma5 js (ie. bind, forEach). ==> added IE8 check
 
-### 0.0.2
+### 0.2
 * add tabs demo
 * Fixed: uses non-IE8 friendly class manipulation (ie. classList)
 * Fixed: if mobile and not infinite, can see wrapping slides
 
-### 0.0.1
+### 0.1
 * still a proof of concept
 * uses ecma5 js (ie. bind, forEach)
 * uses non-IE8 friendly class manipulation (ie. classList)
