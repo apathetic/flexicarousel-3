@@ -42,6 +42,7 @@ module.exports = function(grunt) {
 				globals: {
 					'DocumentTouch': true
 				}
+				/*jslint eqeq:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
 			},
 			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js']
 			/*jslint eqeq:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */

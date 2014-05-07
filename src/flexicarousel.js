@@ -7,9 +7,11 @@
  *
  */
 
-/*jslint eqeq:true, browser:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
-
-
+/*
+function log(content) {
+	jQuery('#log').html(content);
+}
+*/
 var Carousel = function(container, options){
 
 	this.el = container;
@@ -34,7 +36,8 @@ var Carousel = function(container, options){
 	// touch vars
 	// --------------------
 	this.dragging = false;
-	this.dragThreshold = 40;	// 100
+	this.dragThreshold = 50;
+	// this.dragThreshold = 0;		// for touchmove bug android 4.x
 	this.width = 0;
 
 	// browser capabilities
@@ -85,7 +88,7 @@ Carousel.prototype = {
 		if ( !(this.slideWrap = this.el.querySelector(this.options.slideWrap)) ) { return; }	// note: assignment
 		if ( !(this.slides = this.slideWrap.children) ) { return; }								// note: assignment
 
-		if (this.slides.length < 3) { this.options.infinite = false; }							// need at least 3 slides for this to work
+		if ( this.slides.length < 3 ) { this.options.infinite = false; }						// need at least 3 slides for this to work
 
 		this._setIndices(0);
 
@@ -165,9 +168,16 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	destroy: function() {
-		console.log('destroy', this);
+
 		// reset slides
-		// this._moveEnd(0);
+		/*
+		for (var i = this.slides.length; i--;) {
+			this._removeClass( i, this.options.beforeClass );
+			this._removeClass( i, this.options.afterClass );
+			this._removeClass( i, this.options.activeClass );
+		}
+		this.addClass( 0, this.options.activeClass );
+		*/
 
 		// remove listeners
 		this.slideWrap.removeEventListener('touchstart', this._dragStart);
@@ -175,36 +185,13 @@ Carousel.prototype = {
 		this.slideWrap.removeEventListener('touchend', this._dragEnd);
 		window.removeEventListener('orientationchange', this._orientationChange);
 
-		// cleanup ...??
-		// this.el = null;
-		// this.defaults = null;
-		// this.options = null;
-		// this.slides = null;
-		// this.slideWrap = null;
-		// this.transitionEnd = null;
-
-		// isTouch
-		// dragging
-		// sliding
-		// current
-		// before
-		// after
-		// dragThresholdMet
-		// dragging
-		// cancel
-		// startClientX
-		// startClientY
-
-
-
-		// remove DOM references
 		for (var property in this) {		// overkill
 			delete this[property];
 		}
-		// OR, just:
+
+		// perhaps better:
+		// remove DOM references
 		// this.slides = this.slideWrap = this.el = null
-
-
 	},
 
 	// ------------------------------------- "private" starts here ------------------------------------- //
@@ -280,15 +267,13 @@ Carousel.prototype = {
 			return false;
 		}
 
-		if (e.touches) {
-			e = e.touches[0];
-		}
+		e = e.originalEvent || e;
 
 		this.dragThresholdMet = false;
 		this.dragging = true;
 		this.cancel = false;
-		this.startClientX = e.clientX;
-		this.startClientY = e.clientY;
+		this.startClientX = e.touches[0].clientX;
+		this.startClientY = e.touches[0].clientY;
 	},
 
 	/**
@@ -297,35 +282,48 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	_drag: function(e) {
-		var abs = Math.abs;		// helper var
+
+		var abs = Math.abs;		// helper fn
 
 		if (!this.dragging || this.cancel) {
+		// if (!this.dragging) {
 			return;
 		}
 
+		// android 4.x:  If you don’t e.preventDefault() on the first event, then forthcoming events won’t be fired.
+
+		e = e.originalEvent || e;
 		this.deltaX = e.touches[0].clientX - this.startClientX;
 		this.deltaY = e.touches[0].clientY - this.startClientY;
 
+
+		// log( abs(this.deltaX) > abs(this.deltaY) );
+
 		// determine if we should do slide, or cancel and let the event pass through to the page
-		if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY) && (abs(this.deltaX) > this.dragThreshold)) {
+		// if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY) && (abs(this.deltaX) > this.dragThreshold)) {
+		// if (this.dragThresholdMet || (abs(this.deltaX) > 10 && abs(this.deltaY) < 25)) {
+		if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY)) {
+
 			this.dragThresholdMet = true;
 			e.preventDefault();
-		} else if ((abs(this.deltaY) > abs(this.deltaX)) && (abs(this.deltaY) > this.dragThreshold)) {
+
+			// at the beginning going more beginninger, or at the end going more ender-er
+			// if (this.before === null && e.clientX > this.startClientX) || (this.after === null && e.clientX < this.startClientX)) {
+			//  this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
+			// } else {
+				this.touchPixelRatio = 1;
+			// }
+
+			this.pixelOffset = this.deltaX / this.touchPixelRatio;
+			this._translate( this.before, (this.pixelOffset - this.width) );
+			this._translate( this.current, this.pixelOffset);
+			this._translate( this.after,  (this.pixelOffset + this.width) );
+
+		// } else if ((abs(this.deltaY) > abs(this.deltaX)) && (abs(this.deltaY) > this.dragThreshold)) {
+		} else if (abs(this.deltaY) > abs(this.deltaX)) {
 			this.cancel = true;
-			return;
+			// return;
 		}
-
-		// at the beginning going more beginninger, or at the end going more ender-er
-		// if (this.before === null && e.clientX > this.startClientX) || (this.after === null && e.clientX < this.startClientX)) {
-		//  this.touchPixelRatio = 3;	// "elastic" effect where slide will drag 1/3 of the distance swiped
-		// } else {
-			 this.touchPixelRatio = 1;
-		// }
-
-		this.pixelOffset = this.deltaX / this.touchPixelRatio;
-		this._translate( this.before, (this.pixelOffset - this.width) );
-		this._translate( this.current, this.pixelOffset);
-		this._translate( this.after,  (this.pixelOffset + this.width) );
 
 	},
 
@@ -340,6 +338,8 @@ Carousel.prototype = {
 		if (!this.dragging) {
 			return;
 		}
+
+		// log('end: '+ this.deltaX);
 
 		this.dragging = false;
 
@@ -365,11 +365,11 @@ Carousel.prototype = {
 			}
 		}
 
-
-
-		// for (i = this.slides.length; i--;) {
-		// 	this.slides[i].style.webkitTransform = '';
-		// }
+		/*
+		for (i = this.slides.length; i--;) {
+			this.slides[i].style.webkitTransform = '';
+		}
+		*/
 		var c = this;
 		setTimeout(function(){
 			for (i = c.slides.length; i--;) {
@@ -458,5 +458,4 @@ Carousel.prototype = {
 	}
 
 };
-
 

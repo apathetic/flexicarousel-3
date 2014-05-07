@@ -56,9 +56,9 @@ Include the relevant scripts in your web page, and then:
 
 	// as a jQuery plugin
 	jQuery(function($) {
-		$('.carousel').carousel({
+		$('.carousel').carousel(
 			options
-		});
+		);
 	});
 
 	// or, without jquery if you prefer:
