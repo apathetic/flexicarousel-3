@@ -37,12 +37,11 @@ var Carousel = function(container, options){
 	// --------------------
 	this.dragging = false;
 	this.dragThreshold = 50;
-	// this.dragThreshold = 0;		// for touchmove bug android 4.x
 	this.width = 0;
 
 	// browser capabilities
 	// --------------------
-	this.isTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
+	this.isTouch = 'ontouchend' in document;	// ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
 	this.transitionEnd = (function(){
 		var t,
 			el = document.createElement('fake'),
@@ -274,6 +273,7 @@ Carousel.prototype = {
 		this.cancel = false;
 		this.startClientX = e.touches[0].clientX;
 		this.startClientY = e.touches[0].clientY;
+		this.deltaX = 0;	// reset for the case when user does 0,0 touch
 	},
 
 	/**
@@ -302,7 +302,8 @@ Carousel.prototype = {
 		// determine if we should do slide, or cancel and let the event pass through to the page
 		// if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY) && (abs(this.deltaX) > this.dragThreshold)) {
 		// if (this.dragThresholdMet || (abs(this.deltaX) > 10 && abs(this.deltaY) < 25)) {
-		if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY)) {
+		// if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY)) {
+		if (this.dragThresholdMet || (abs(this.deltaX) > abs(this.deltaY)) && (abs(this.deltaX) > 10)) {		// 10 from empirical testing
 
 			this.dragThresholdMet = true;
 			e.preventDefault();
@@ -343,7 +344,18 @@ Carousel.prototype = {
 
 		this.dragging = false;
 
-		if (this.deltaX < 0) {
+		if (this.deltaX > 0) {
+			if ( this.deltaX < this.dragThreshold || this.before === null ) {
+				// set the "to" to be the after slide so that it snaps-back as well
+				to = this.current;
+				this.current = this.before;
+				this._move(to);
+			}
+			else {
+				this.prev();
+			}
+		}
+		else if (this.deltaX < 0) {
 			if ( Math.abs(this.deltaX) < this.dragThreshold || this.after === null ) {
 				// set the "to" to be the after slide so that it snaps-back as well
 				to = this.current;
@@ -354,15 +366,8 @@ Carousel.prototype = {
 				this.next();
 			}
 		}
-		else if (this.deltaX > 0) {
-			if ( this.deltaX < this.dragThreshold || this.before === null ) {
-				to = this.current;
-				this.current = this.before;
-				this._move(to);
-			}
-			else {
-				this.prev();
-			}
+		else {
+			this._moveEnd(this.current);		// edge case
 		}
 
 		/*
