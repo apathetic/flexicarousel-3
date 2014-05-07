@@ -7,11 +7,12 @@
  *
  */
 
-/*
+/* * /
 function log(content) {
 	jQuery('#log').html(content);
 }
-*/
+/**/
+
 var Carousel = function(container, options){
 
 	this.el = container;
@@ -274,6 +275,7 @@ Carousel.prototype = {
 		this.startClientX = e.touches[0].clientX;
 		this.startClientY = e.touches[0].clientY;
 		this.deltaX = 0;	// reset for the case when user does 0,0 touch
+		this.deltaY = 0;	// reset for the case when user does 0,0 touch
 	},
 
 	/**
@@ -286,24 +288,15 @@ Carousel.prototype = {
 		var abs = Math.abs;		// helper fn
 
 		if (!this.dragging || this.cancel) {
-		// if (!this.dragging) {
 			return;
 		}
-
-		// android 4.x:  If you don’t e.preventDefault() on the first event, then forthcoming events won’t be fired.
 
 		e = e.originalEvent || e;
 		this.deltaX = e.touches[0].clientX - this.startClientX;
 		this.deltaY = e.touches[0].clientY - this.startClientY;
 
-
-		// log( abs(this.deltaX) > abs(this.deltaY) );
-
 		// determine if we should do slide, or cancel and let the event pass through to the page
-		// if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY) && (abs(this.deltaX) > this.dragThreshold)) {
-		// if (this.dragThresholdMet || (abs(this.deltaX) > 10 && abs(this.deltaY) < 25)) {
-		// if (this.dragThresholdMet || abs(this.deltaX) > abs(this.deltaY)) {
-		if (this.dragThresholdMet || (abs(this.deltaX) > abs(this.deltaY)) && (abs(this.deltaX) > 10)) {		// 10 from empirical testing
+		if (this.dragThresholdMet || (abs(this.deltaX) > abs(this.deltaY) && abs(this.deltaX) > 10)) {		// 10 from empirical testing
 
 			this.dragThresholdMet = true;
 			e.preventDefault();
@@ -320,10 +313,8 @@ Carousel.prototype = {
 			this._translate( this.current, this.pixelOffset);
 			this._translate( this.after,  (this.pixelOffset + this.width) );
 
-		// } else if ((abs(this.deltaY) > abs(this.deltaX)) && (abs(this.deltaY) > this.dragThreshold)) {
-		} else if (abs(this.deltaY) > abs(this.deltaX)) {
+		} else if ((abs(this.deltaY) > abs(this.deltaX) && abs(this.deltaY) > 10)) {
 			this.cancel = true;
-			// return;
 		}
 
 	},
@@ -336,17 +327,15 @@ Carousel.prototype = {
 	_dragEnd: function(e) {
 		var i, to;
 
-		if (!this.dragging) {
+		if (!this.dragging || this.cancel) {
 			return;
 		}
-
-		// log('end: '+ this.deltaX);
 
 		this.dragging = false;
 
 		if (this.deltaX > 0) {
 			if ( this.deltaX < this.dragThreshold || this.before === null ) {
-				// set the "to" to be the after slide so that it snaps-back as well
+				// set the "to" to be the before slide so that it snaps-back as well
 				to = this.current;
 				this.current = this.before;
 				this._move(to);
@@ -366,9 +355,10 @@ Carousel.prototype = {
 				this.next();
 			}
 		}
+		/*
 		else {
 			this._moveEnd(this.current);		// edge case
-		}
+		}*/
 
 		/*
 		for (i = this.slides.length; i--;) {
