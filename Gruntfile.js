@@ -1,15 +1,17 @@
 /*global module:false*/
 module.exports = function(grunt) {
 
-	var port = grunt.option('port') || 8000;
+	var port = grunt.option('port') || 8000,
+		testPort = 8765;
 
 	// Load all grunt-related tasks
-	// require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-	grunt.loadNpmTasks( 'grunt-contrib-qunit' );
+	// grunt.loadNpmTasks( 'grunt-contrib-qunit' );
 	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
 	grunt.loadNpmTasks( 'grunt-contrib-watch' );
 	grunt.loadNpmTasks( 'grunt-contrib-connect' );
+	grunt.loadNpmTasks( 'grunt-karma' );
+
 
 	// Project configuration.
 	grunt.initConfig({
@@ -20,10 +22,6 @@ module.exports = function(grunt) {
 					'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
 					'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 					' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
-		},
-
-		qunit: {
-			files: ['test/**/*.html']
 		},
 
 		jshint: {
@@ -44,38 +42,35 @@ module.exports = function(grunt) {
 				}
 				/*jslint eqeq:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
 			},
-			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js']
-			/*jslint eqeq:true, debug:true, evil:false, devel:true, smarttabs:true, immed:false */
+			files: ['Gruntfile.js', 'src/**/*.js', /*'test/** /*.js'*/]
 		},
 
-		// concat: {
-		// 	dist: {
-		// 		src: [
-		// 			'<banner:meta.banner>',
-		// 			'src/<%= pkg.name %>.js'
-		// 		],
-		// 		dest: 'dist/<%= pkg.name %>.js'
-		// 	},
-		// 	jquery: {
-		// 		src: [
-		// 			'<banner:meta.banner>',
-		// 			'src/<%= pkg.name %>.js',
-		// 			'src/jquery.<%= pkg.name %>.js'
-		// 		],
-		// 		dest: 'dist/jquery.<%= pkg.name %>.js'
-		// 	}
-		// },
+		karma: {
+			options: {
+				autoWatch: false,
+				browsers: ['PhantomJS'],
+				colors: true,
+				files: [
+					'src/*.js',
+					'test/*.js',
+					{ pattern: 'test/fixture.html', watched:true, served:true, included:false },
+				],
+				frameworks: ['jasmine'],
+				port: testPort,
+				reporters: ['progress'],
+				singleRun: true
+			},
+			// build: {
+			// 	browsers: ["Chrome"],
+			// },
+			unit: {
+			// 	//background: true,
+				// autoWatch:true,
+			// 	browsers: ["Chrome"],
+				// singleRun: false
+			}
 
-		// min: {
-		// 	dist: {
-		// 		src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
-		// 		dest: 'dist/<%= pkg.name %>.min.js'
-		// 	},
-		// 	jquery: {
-		// 		src: ['<banner:meta.banner>', '<config:concat.jquery.dest>'],
-		// 		dest: 'dist/jquery.<%= pkg.name %>.min.js'
-		// 	}
-		// },
+		},
 
 		uglify: {
 			options: {
@@ -111,20 +106,17 @@ module.exports = function(grunt) {
 	grunt.registerTask( 'default', [
 		'jshint',
 		'uglify',
-		'qunit'
+		'karma'
 	]);
 
 	grunt.registerTask('build', [
 		'jshint',
-		// 'qunit',
-		// 'concat',		// update these to uglify
-		// 'min'			// ....
 		'uglify'
 	]);
 
 	grunt.registerTask('test', [
 		'jshint',
-		'qunit'
+		'karma:unit'
 	]);
 
 	grunt.registerTask('serve', [
