@@ -1,6 +1,6 @@
 {
-  "name": "flexicarousel",
-  "title": "Flexicarousel 2",
+  "name": "simplecarousel",
+  "title": "Simple Carousel",
   "version": "0.3.0",
   "description": "A carousel that'll dynamically adapt its width: it will grow or shrink alongside a site that’s resizing via css media queries. Uses CSS3 transforms for its transitions and is touch-enabled",
   "author": {
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apathetic/flexicarousel-2.git"
+    "url": "https://github.com/apathetic/xxx.git"
   },
   "bugs": {
-    "url": "https://github.com/apathetic/flexicarousel-2/issues"
+    "url": "https://github.com/apathetic/xxx/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/apathetic/flexicarousel-2/blob/master/LICENSE-MIT"
+      "url": "https://github.com/apathetic/xxx/blob/master/LICENSE-MIT"
     }
   ],
   "engines": {
@@ -26,6 +26,7 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-compress": "^0.12.0",
     "grunt-contrib-connect": "~0.6.0",
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-uglify": "^0.4.0",
