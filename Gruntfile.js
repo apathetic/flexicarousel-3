@@ -1,7 +1,7 @@
 /*global module:false*/
 module.exports = function(grunt) {
 
-	var port = grunt.option('port') || 8000,
+	var port = grunt.option('port') || 8003,
 		testPort = 8765;
 
 	// Load all grunt-related tasks
@@ -10,6 +10,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
 	grunt.loadNpmTasks( 'grunt-contrib-watch' );
 	grunt.loadNpmTasks( 'grunt-contrib-connect' );
+	grunt.loadNpmTasks( 'grunt-contrib-compress' );
 	grunt.loadNpmTasks( 'grunt-karma' );
 
 
@@ -27,6 +28,7 @@ module.exports = function(grunt) {
 		jshint: {
 			options: {
 				curly: true,
+				smarttabs:true,
 				// eqeqeq: true,
 				// immed: true,
 				latedef: true,
@@ -69,7 +71,6 @@ module.exports = function(grunt) {
 			// 	browsers: ["Chrome"],
 				// singleRun: false
 			}
-
 		},
 
 		uglify: {
@@ -80,7 +81,20 @@ module.exports = function(grunt) {
 				files: {
 					'dist/jquery.<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js', 'src/jquery.<%= pkg.name %>.js'],
 					'dist/<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js']
+					// '.temp/<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js']
 				}
+			}
+		},
+
+		compress: {
+			main: {
+				options: {
+					mode: 'gzip'
+				},
+				files: [
+					// {expand: true, src: ['.temp/*.js'], dest: 'dist/', ext: 'min.gz.js'}
+					{expand: true, src: ['dist/<%= pkg.name %>.min.js'], dest: '', ext: '.min.gz.js'}
+				]
 			}
 		},
 
@@ -106,12 +120,7 @@ module.exports = function(grunt) {
 	grunt.registerTask( 'default', [
 		'jshint',
 		'uglify',
-		'karma'
-	]);
-
-	grunt.registerTask('build', [
-		'jshint',
-		'uglify'
+		'compress'
 	]);
 
 	grunt.registerTask('test', [
