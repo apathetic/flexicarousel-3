@@ -9,9 +9,10 @@
 
 
 /*
-TODO:
----------------
+	TODO:
+	---------------
 	* loses drag if you go beyond container
+
  */
 
 
@@ -25,7 +26,7 @@ var Carousel = function(container, options){
 		activeClass: 'active',
 		slideWrap: 'ul',			// for binding touch events
 		slides: 'li',				// the slide
-		infinite: true,			// infinite scrolling or not
+		infinite: true,				// infinite scrolling or not
 		display: 1,					// if infinite, the # of slides to "view ahead" ie. position offscreen
 		disableDragging: false
 	};
@@ -39,27 +40,42 @@ var Carousel = function(container, options){
 	// touch vars
 	// --------------------
 	this.dragging = false;
-	// this.dragThreshold = 50;
-	// this.dragThresholdMet = false;
+	this.dragThreshold = 50;
 	this.deltaX = 0;
 
 	// browser capabilities
 	// --------------------
 	this.isTouch = 'ontouchend' in document;
-	this.transform = (function(){
-		var transforms = ['transform','webkitTransform','MozTransform','OTransform'],
-			// p = ["Webkit","Moz","O","Ms","ms"],
-			i = transforms.length,
-			el = document.createElement('fake');
 
-		for (i; --i;) {
-			// document.body.style.perspective !== undefined
-			// if (el.style[ p[i]+'Perspective' ] !== undefined) {}
-			// note: we don't test "ms" prefix, (as that gives us IE9 which doesn't support transforms3d anyway. IE10 test will work with "transform")
-			if ( el.style[ transforms[i] ] !== undefined) { return transforms[i]; }
+	// feature detection
+	// --------------------
+	// this.transform = (function(){
+	// 	var transforms = ['transform','webkitTransform','MozTransform','OTransform'],
+	// 		i = transforms.length,
+	// 		el = document.createElement('fake');
+
+	// 	for (i; --i;) {
+	// 		// note: we don't test "ms" prefix, (as that gives us IE9 which doesn't support transforms3d anyway. IE10 test will work with "transform")
+	// 		if ( el.style[ transforms[i] ] !== undefined) { return transforms[i]; }
+	// 	}
+	// 	return false;
+	// })();
+
+	var style = document.body.style;
+	var tests = {
+		 'transform':'transitionend',
+		 'OTransform': 'oTransitionEnd',
+		 'MozTransform': 'transitionend',
+		 'webkitTransform': 'webkitTransitionEnd'
+	};
+	// note: we don't test "ms" prefix, (as that gives us IE9 which doesn't support transforms3d anyway. IE10 test will work with "transform")
+	for (var x in tests) {
+		if ( style[x] !== undefined) {
+			this.transform = x;
+			this.transition = tests[x];
+			break;
 		}
-		return false;
-	})();
+	}
 
 	// engage engines
 	// --------------------
@@ -83,12 +99,11 @@ Carousel.prototype = {
 		if ( !(this.slideWrap	= this.handle.querySelector(this.options.slideWrap)) ) { return; }		// note: assignment
 		if ( !(this.slides		= this.slideWrap.querySelectorAll(this.options.slides)) ) { return; }	// note: assignment
 
-		// this.allSlides = this.slideWrap.children;	// this maintains a reference to all original slides + cloned slides
 		this.numSlides = this.slides.length;
-		this.width = this.slideWrap.offsetWidth;
+		this.width = this.slideWrap.offsetWidth;											// for first drag
 
 		// check if we have sufficient slides to make a carousel
-		if ( this.numSlides < this.options.display ) { this.sliding = true; return; }		// this.sliding deactivates carousel. Maybe "this.active" ?
+		if ( this.numSlides < this.options.display ) { this.sliding = true; return; }		// this.sliding deactivates carousel. I will better-ify this one day. Maybe "this.active" ?
 		if ( this.options.infinite ) { this._cloneEndSlides(this.options.display); }
 
 		// add active class
@@ -101,10 +116,12 @@ Carousel.prototype = {
 				this.slideWrap.addEventListener('touchstart', this._dragStart.bind(this));
 				this.slideWrap.addEventListener('touchmove', this._drag.bind(this));
 				this.slideWrap.addEventListener('touchend', this._dragEnd.bind(this));
+				this.slideWrap.addEventListener('touchcancel', this._dragEnd.bind(this));
 			}
 			this.slideWrap.addEventListener('mousedown', this._dragStart.bind(this));
 			this.slideWrap.addEventListener('mousemove', this._drag.bind(this));
 			this.slideWrap.addEventListener('mouseup', this._dragEnd.bind(this));
+			this.slideWrap.addEventListener('mouseleave', this._dragEnd.bind(this));
 		}
 
 		window.addEventListener('resize', this._updateView.bind(this));
@@ -118,8 +135,13 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	next: function() {
-		if (!this.sliding && (this.options.infinite || this.current !== this.numSlides-1)) {
+		// if (!this.sliding && (this.options.infinite || this.current !== this.numSlides-1)) {
+		// 	this.go(this.current + 1);
+		// }
+		if (this.options.infinite || this.current !== this.numSlides-1) {
 			this.go(this.current + 1);
+		} else {
+			this.go(this.numSlides-1);
 		}
 	},
 
@@ -128,12 +150,10 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	prev: function() {
-		if (!this.sliding) {
-			if (this.options.infinite || this.current !== 0) {
-				this.go(this.current - 1);
-			} else {
-				this.go(0);
-			}
+		if (this.options.infinite || this.current !== 0) {
+			this.go(this.current - 1);
+		} else {
+			this.go(0);
 		}
 	},
 
@@ -142,64 +162,29 @@ Carousel.prototype = {
 	 * @param  {int} to Slide to display
 	 * @return {void}
 	 */
-	// go: function(to) {
-
-	// 	if ( this.sliding ) { return; }
-
-	// 	this.width = this.slideWrap.offsetWidth;		// do this EVERY time, now
-
-	// 	this._slide( -(to * this.width)+'px' );
-
-	// 	if ( to < 0 || to >= this.numSlides ) {
-	// 		to = this._loop(to);
-
-	// 		// "afterSlide"
-	// 		setTimeout(function(){
-	// 			this._addClass( this.slideWrap, 'no-animation' );
-	// 			this._slide( -(to * this.width)+'px' );		// ("to" is now the "looped" version)
-	// 			/* jshint ignore:start */
-	// 			this.slideWrap.offsetHeight;			// force a repaint to actually position "to" slide. *Important*
-	// 			/* jshint ignore:end */
-	// 			this._removeClass( this.slideWrap, 'no-animation' );
-	// 		}, 500, this);
-	// 	}
-
-	// 	// more like "onSlide"
-	// 	if (this.options.beforeSlide) { this.options.beforeSlide(to, this.current); }	// note: doesn't check if is a function
-
-	// 	this._removeClass( this.slides[this.current], this.options.activeClass );
-	// 	this._addClass( this.slides[to], this.options.activeClass );
-	// 	this.current = to;
-	// },
 	go: function(to) {
 
 		if ( this.sliding ) { return; }
 
-		this.width = this.slideWrap.offsetWidth;		// do this EVERY time, now
-
-		if ( to < 0 || to >= this.numSlides ) {
-
+		if ( to < 0 || to >= this.numSlides ) {									// position the carousel if infinite and at end of bounds
 			var temp = (to < 0) ? this.numSlides : -1;
-
-			this._addClass( this.slideWrap, 'no-animation' );
+			// this._slide( -(temp * this.width)+'px' );							// skip to beg / end for infinite
 			this._slide( -(temp * this.width - this.deltaX)+'px' );
-
 			/* jshint ignore:start */
-			this.slideWrap.offsetHeight;			// force a repaint to actually position "to" slide. *Important*
+			this.slideWrap.offsetHeight;										// force a repaint to actually position "to" slide. *Important*
 			/* jshint ignore:end */
-
-			this._removeClass( this.slideWrap, 'no-animation' );
 		}
 
 		to = this._loop(to);
-
-		if (this.options.beforeSlide) { this.options.beforeSlide(to, this.current); }	// note: doesn't check if is a function
-
-		this._slide( -(to * this.width)+'px' );
+		this._slide( -(to * this.width)+'px', true );							// true is to animate it
 
 		this._removeClass( this.slides[this.current], this.options.activeClass );
 		this._addClass( this.slides[to], this.options.activeClass );
+
+		if (this.options.onSlide) { this.options.onSlide(to, this.current); }	// note: doesn't check if is a function
+
 		this.current = to;
+		this.deltaX = 0;
 	},
 
 
@@ -230,7 +215,7 @@ Carousel.prototype = {
 		this.deltaX = 0;	// reset for the case when user does 0,0 touch
 		this.deltaY = 0;	// reset for the case when user does 0,0 touch
 
-		this._addClass(this.slideWrap, 'no-animation');
+		// this._addClass(this.slideWrap, 'no-animation');
 
 		if (e.type === 'mousedown') {
 			// do something if dragging?
@@ -259,6 +244,8 @@ Carousel.prototype = {
 		this.deltaX = (touches ? touches[0].pageX : e.clientX) - this.startClientX;
 		this.deltaY = (touches ? touches[0].pageY : e.clientY) - this.startClientY;
 
+		// or... cancel if e.clientX / Y is beyond the slideWrap's dimentions
+
 		// determine if we should do slide, or cancel and let the event pass through to the page
 		if (this.dragThresholdMet || (abs(this.deltaX) > abs(this.deltaY) && abs(this.deltaX) > 10)) {		// 10 from empirical testing
 
@@ -285,19 +272,55 @@ Carousel.prototype = {
 		}
 
 		this.dragging = false;
-		this._removeClass(this.slideWrap, 'no-animation');
+		// this._removeClass(this.slideWrap, 'no-animation');
 
 		if ( Math.abs(this.deltaX) < this.dragThreshold ) {
 			this.go(this.current);
 		}
 		else if ( this.deltaX > 0 ) {
-			// if (this.deltaX > some_width) this.prev();	// do an extra .prev()
+			// if (this.deltaX > some_width) this.prev();	// momentum based check to swipe multiple slides?
 			this.prev();
 		}
 		else if ( this.deltaX < 0 ) {
 			this.next();
 		}
 	},
+
+
+	// ------------------------------------- carousel engine ------------------------------------- //
+
+
+	/**
+	 * Helper function to translate slide in browser
+	 * @param  {[type]} el     [description]
+	 * @param  {[type]} offset [description]
+	 * @return {[type]}        [description]
+	 */
+	_slide: function(offset, animate) {
+
+		// the alternatives are to manually transition, or to have a "no-transition" class and invert the logic
+		if ( animate ) {
+			this.sliding = true;
+			this._addClass( this.slideWrap, 'animate' );
+			this.slideWrap.addEventListener(this.transition, (function(e) {
+				this.sliding = false;
+				this.slideWrap.removeEventListener(this.transition);
+				this._removeClass( this.slideWrap, 'animate' );
+			}).bind(this));
+
+			// ...
+			// Or, if your css is busted, force removal with a setTimeout:
+			// setTimeout(function(){ ... }
+		}
+
+		if (this.transform) {
+			this.slideWrap.style[this.transform] = 'translate3d(' + offset + ', 0, 0)';
+		}
+		else {
+			this.slideWrap.style.left = offset;
+		}
+	},
+
 
 	// ------------------------------------- "helper" functions ------------------------------------- //
 
@@ -309,7 +332,6 @@ Carousel.prototype = {
 	 */
 	_loop: function(val) {
 		return (this.numSlides + (val % this.numSlides)) % this.numSlides;
-		// return (val % this.numSlides);		// doesn't deal w/ negative vals very well
 	},
 
 	/**
@@ -317,28 +339,12 @@ Carousel.prototype = {
 	 * @return {[type]} [description]
 	 */
 	_updateView: function() {
-		// this.width = this.slideWrap.offsetWidth;
+		this.width = this.slideWrap.offsetWidth;
 
 		// this.go(this.current);			// throttle this?
 		var self = this;
 		clearTimeout(self.timer);
-		this.timer = setTimeout(function() { self.go(self.current); }, 500);
-	},
-
-	/**
-	 * Helper function to translate slide in browser
-	 * @param  {[type]} el     [description]
-	 * @param  {[type]} offset [description]
-	 * @return {[type]}        [description]
-	 */
-	_slide: function(offset) {
-		// this._addClass( this.slideWrap, 'animate' );	// probably better to only add when animating, but harder to remove
-		if (this.transform) {
-			this.slideWrap.style[this.transform] = 'translate3d(' + offset + ', 0, 0)';
-		}
-		else {
-			this.slideWrap.style.left = offset;
-		}
+		this.timer = setTimeout(function() { self.go(self.current); }, 300);
 	},
 
 	/**
@@ -372,7 +378,6 @@ Carousel.prototype = {
 			this.slideWrap.appendChild(duplicate);
 		}
 
-		// this.slideWrap.style.left = (-offscreen)+'00%';										// TODO this'll break when IE8 (which uses "left" for sliding)
 		this.slideWrap.style.marginLeft = (-offscreen)+'00%';										// TODO this'll break when IE8 (which uses "left" for sliding)
 	},
 
