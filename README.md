@@ -1,7 +1,7 @@
 # Flexicarousel
 
 A carousel that'll dynamically adapt its width: it will grow or shrink alongside a site that’s resizing via css media queries. Uses CSS3
-transforms for its transitions, and is also responsive using CSS
+transforms for its transitions, and is also responsive using CSS.
 
 ##Introduction
 
@@ -43,13 +43,18 @@ Include the relevant scripts in your web page, and then:
 </script>
 ```
 
-## Documentation
+### Notes
+
+The carousel uses transitionEnd (or the browser-prefixed variant) to determine when to update after sliding. If the carousel seems to not be working
+-- and you've messed with the default CSS -- double-check that you're using the _transition_ property correctly in the .animate class.
+
+## API
 
 	next: advances the carousel by one slide
 
 	prev: returns to the previous slide
 
-	go: function(to) advances slide to the index
+	go: function(to) advances slide to the _to_ index
 
 
 ## Support
