@@ -14,13 +14,6 @@
 			white-space:nowrap;
 			width:100%;
 			font-size: 0;
-
-			/* * /
-			-webkit-transition: all 0.4s ease-out;
-			   -moz-transition: all 0.4s ease-out;
-			     -o-transition: all 0.4s ease-out;
-			        transition: all 0.4s ease-out;
-			/* */
 		}
 
 		.carousel .animate {
@@ -28,13 +21,6 @@
 		     -moz-transition: all 0.4s ease-in-out;
 		       -o-transition: all 0.4s ease-in-out;
 		          transition: all 0.4s ease-in-out;
-		}
-
-		.carousel .no-animation {
-		  -webkit-transition: none;
-		     -moz-transition: none;
-		       -o-transition: none;
-		          transition: none;
 		}
 
 		.carousel ul > li {
@@ -50,7 +36,7 @@
 
 
 		/* -------------------------------------
-			NAVIGATION STYLES
+			SAMPLE NAVIGATION STYLES
 		------------------------------------- */
 		.carousel nav {
 			width: 100%;
