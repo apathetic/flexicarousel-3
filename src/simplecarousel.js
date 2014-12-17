@@ -194,8 +194,6 @@ Carousel.prototype = {
 		this.deltaX = 0;	// reset for the case when user does 0,0 touch
 		this.deltaY = 0;	// reset for the case when user does 0,0 touch
 
-		// this._addClass(this.slideWrap, 'no-animation');
-
 		if (e.type === 'mousedown') { }
 		if (e.target.tagName === "IMG" || e.target.tagName === "A") { e.target.draggable = false; }
 	},
@@ -273,15 +271,37 @@ Carousel.prototype = {
 		if ( animate ) {
 			this.sliding = true;
 			this._addClass( this.slideWrap, 'animate' );
-			this.slideWrap.addEventListener(this.transition, (function(e) {
-				this.sliding = false;
-				this.slideWrap.removeEventListener(this.transition);
-				this._removeClass( this.slideWrap, 'animate' );
-			}).bind(this));
 
+
+
+
+
+
+
+
+			// this.slideWrap.addEventListener(this.transition, (function(e) {
+			// 	this.sliding = false;
+			// 	this.slideWrap.removeEventListener(this.transition);
+			// 	this._removeClass( this.slideWrap, 'animate' );
+			// }).bind(this));
 			// ...
+
 			// Or, if your css is busted, force removal with a setTimeout:
-			// setTimeout(function(){ ... }
+			// var delay = window.getComputedStyle(this.slideWrap).getPropertyValue('transition-duration') || 300;
+			// delay = ( delay.indexOf( 'ms' ) >- 1 ) ? parseFloat( delay ) : parseFloat( delay ) * 1000;
+
+			var delay = 300;
+			var self = this;
+			setTimeout(function(){
+				self.sliding = false;
+				self._removeClass( self.slideWrap, 'animate' );
+			}, delay);
+
+
+
+
+
+
 		}
 
 		if (this.transform) {
@@ -314,7 +334,7 @@ Carousel.prototype = {
 		// this.go(this.current);			// throttle this?
 
 		var self = this;
-		clearTimeout(self.timer);
+		clearTimeout(this.timer);
 		this.timer = setTimeout(function() { self.go(self.current); }, 300);
 	},
 
@@ -349,7 +369,7 @@ Carousel.prototype = {
 			this.slideWrap.appendChild(duplicate);
 		}
 
-		this.slideWrap.style.marginLeft = (-offscreen)+'00%';										// TODO this'll break when IE8 (which uses "left" for sliding)
+		this.slideWrap.style.marginLeft = (-offscreen)+'00%';
 	},
 
 	/**
