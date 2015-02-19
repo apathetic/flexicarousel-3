@@ -17,10 +17,10 @@
 		}
 
 		.carousel .animate {
-		  -webkit-transition: all 0.4s ease-in-out;
-		     -moz-transition: all 0.4s ease-in-out;
-		       -o-transition: all 0.4s ease-in-out;
-		          transition: all 0.4s ease-in-out;
+		  -webkit-transition: all 0.4s ease;
+		     -moz-transition: all 0.4s ease;
+		       -o-transition: all 0.4s ease;
+		          transition: all 0.4s ease;
 		}
 
 		.carousel ul > li {
