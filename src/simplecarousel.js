@@ -254,7 +254,7 @@ Carousel.prototype = {
 		this.dragging = false;
 		// this._removeClass(this.slideWrap, 'no-animation');
 
-		if ( Math.abs(this.deltaX) < this.dragThreshold ) {
+		if ( this.deltaX !== 0 && Math.abs(this.deltaX) < this.dragThreshold ) {
 			this.go(this.current);
 		}
 		else if ( this.deltaX > 0 ) {
