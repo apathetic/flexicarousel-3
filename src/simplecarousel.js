@@ -102,10 +102,11 @@ Carousel.prototype = {
 			}
 		}
 
-		this.slideWrap.addEventListener(this.transition, (function(e) {
-			this.sliding = false;
-			this._removeClass( this.slideWrap, 'animate' );
-		}).bind(this));
+		// OR, use this and comment out setTimeout in _slide:
+		// this.slideWrap.addEventListener(this.transition, (function(e) {
+		// 	this.sliding = false;
+		// 	this._removeClass( this.slideWrap, 'animate' );
+		// }).bind(this));
 
 		window.addEventListener('resize', this._updateView.bind(this));
 		window.addEventListener('orientationchange', this._updateView.bind(this));
@@ -283,12 +284,12 @@ Carousel.prototype = {
 			this.sliding = true;
 			this._addClass( this.slideWrap, 'animate' );
 
-			// var delay = 400;
-			// var self = this;
-			// setTimeout(function(){
-			// 	self.sliding = false;
-			// 	self._removeClass( self.slideWrap, 'animate' );
-			// }, delay);
+			var delay = 400;
+			var self = this;
+			setTimeout(function(){
+				self.sliding = false;
+				self._removeClass( self.slideWrap, 'animate' );
+			}, delay);
 
 		}
 
