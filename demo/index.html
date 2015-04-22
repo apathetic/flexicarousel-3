@@ -34,12 +34,25 @@
 			width:100%;
 			height:auto;
 		}
+		.carousel nav {
+			text-align: center;
+		}
+		.carousel nav li {
+			width: 20px;
+			height: 20px;
+			margin: 5px;
+			border-radius: 50%;
+			background-color: green;
+		}
+		.carousel nav li.active {
+			background-color: blue;
+		}
 		.responsive {
 			position: relative;
 		}
 
 		#billion .responsive {
-			width: 40%;
+			width: 50%;
 			padding: 0 50px;
 			overflow: hidden;
 			margin: 0 auto;
@@ -48,7 +61,10 @@
 		/* ---- DESKTOP ---- */
 		@media screen and (min-width:961px) {
 			#ten .responsive { width: 25%; }
-			#seven .responsive li { width: 25%; }
+			#seven .responsive {
+				overflow: hidden;
+				padding-right: 75%; 		/* instead of width 25% */
+			}
 
 			#ten li img {
 				-webkit-filter: brightness(30%);
@@ -67,7 +83,10 @@
 		/* ---- TABLET ---- */
 		@media screen and (max-width:960px) {
 			#ten .responsive { width: 50%; }
-			#seven .responsive li { width: 50%; }
+			#seven .responsive {
+				overflow: hidden;
+				padding-right: 50%; 		/* instead of width 25% */
+			}
 
 			#ten li.active img,
 			#ten li.active + li img
@@ -80,7 +99,7 @@
 		/* ---- MOBILE ---- */
 		@media screen and (max-width:640px) {
 			#ten .responsive { width: 100%; }
-			#seven .responsive li { width: 100%; }
+			#seven .responsive { width: 100%; }
 		}
 
 	</style>
@@ -131,6 +150,9 @@
 			</div>
 			<nav>
 				<a href="" class="prev"></a>
+				<ul class="bullets">
+					<li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+				</ul>
 				<a href="" class="next"></a>
 			</nav>
 		</div>
@@ -180,11 +202,11 @@
 						<img src="/demo/images/face3.jpg">
 					</li>
 					<li>
-						<h3>5</h3>
+						<h3>4</h3>
 						<img src="/demo/images/face2.jpg">
 					</li>
 					<li>
-						<h3>6</h3>
+						<h3>5</h3>
 						<img src="/demo/images/face1.jpg">
 					</li>
 				</ul>
@@ -207,10 +229,33 @@
 	<script src="../../src/simplecarousel.js"></script>
 	<script>
 
+
+
+		function updateNav(i) {
+			if (prev) {
+				prev.classList.toggle('disabled', i === 0);
+			}
+			if (next) {
+				next.classList.toggle('disabled', i + 1 >= carousel.numSlides);
+			}
+
+			if (bullets && bullets.length > 0) {
+				Array.prototype.forEach.call(bullets, function(bullet){
+					bullet.classList.remove('active');
+				});
+				bullets[i].classList.add('active');
+			}
+		}
+
+
 		var container = document.querySelector('#ten');
+		var bullets = container.querySelectorAll('.bullets li');
+		var next = container.querySelector('.next');
+		var prev = container.querySelector('.prev');
 		var carousel = new Carousel(container, {
-			display: 4,
-			offscreen: 1
+			'onSlide': updateNav,
+			'display': 4,
+			'offscreen': 1
 		});
 
 		container.querySelector('.prev').addEventListener('click', function(e){
@@ -222,6 +267,15 @@
 			e.preventDefault();
 			carousel.next();
 		});
+
+		Array.prototype.forEach.call(bullets, function(bullet, index){
+			bullet.addEventListener('click', function(e) {
+				e.preventDefault();
+				carousel.go(index);
+			});
+		});
+
+
 
 		// ===================================================================
 
@@ -242,20 +296,22 @@
 
 		// ===================================================================
 
+		var skip = 3;
 		var container3 = document.querySelector('#seven');
 		var carousel3 = new Carousel(container3, {
-			infinite: false,
-			skipSlide: 3
+			infinite: true,
+			display: 4,
+			offscreen: skip
 		});
 
 		container3.querySelector('.prev').addEventListener('click', function(e){
 			e.preventDefault();
-			carousel3.prev();
+			carousel3.go(carousel3.current+skip);
 		});
 
 		container3.querySelector('.next').addEventListener('click', function(e){
 			e.preventDefault();
-			carousel3.next();
+			carousel3.go(carousel3.current-skip);
 		});
 
 
