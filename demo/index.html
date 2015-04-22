@@ -47,9 +47,8 @@
 
 		/* ---- DESKTOP ---- */
 		@media screen and (min-width:961px) {
-			#ten .responsive {
-				width: 25%;
-			}
+			#ten .responsive { width: 25%; }
+			#seven .responsive li { width: 25%; }
 
 			#ten li img {
 				-webkit-filter: brightness(30%);
@@ -67,9 +66,9 @@
 
 		/* ---- TABLET ---- */
 		@media screen and (max-width:960px) {
-			#ten .responsive {
-				width: 50%;
-			}
+			#ten .responsive { width: 50%; }
+			#seven .responsive li { width: 50%; }
+
 			#ten li.active img,
 			#ten li.active + li img
 			{
@@ -80,9 +79,8 @@
 
 		/* ---- MOBILE ---- */
 		@media screen and (max-width:640px) {
-			#ten .responsive {
-				width: 100%;
-			}
+			#ten .responsive { width: 100%; }
+			#seven .responsive li { width: 100%; }
 		}
 
 	</style>
@@ -164,6 +162,45 @@
 		</div>
 
 
+
+
+		<div class="carousel" id="seven">
+			<div class="responsive">
+				<ul>
+					<li>
+						<h3>1</h3>
+						<img src="/demo/images/face1.jpg">
+					</li>
+					<li>
+						<h3>2</h3>
+						<img src="/demo/images/face2.jpg">
+					</li>
+					<li>
+						<h3>3</h3>
+						<img src="/demo/images/face3.jpg">
+					</li>
+					<li>
+						<h3>5</h3>
+						<img src="/demo/images/face2.jpg">
+					</li>
+					<li>
+						<h3>6</h3>
+						<img src="/demo/images/face1.jpg">
+					</li>
+				</ul>
+			</div>
+			<nav>
+				<a href="" class="prev"></a>
+				<a href="" class="next"></a>
+			</nav>
+		</div>
+
+
+
+
+
+
+
 	</div>
 
 
@@ -200,6 +237,30 @@
 			e.preventDefault();
 			carousel2.next();
 		});
+
+
+
+		// ===================================================================
+
+		var container3 = document.querySelector('#seven');
+		var carousel3 = new Carousel(container3, {
+			infinite: false,
+			skipSlide: 3
+		});
+
+		container3.querySelector('.prev').addEventListener('click', function(e){
+			e.preventDefault();
+			carousel3.prev();
+		});
+
+		container3.querySelector('.next').addEventListener('click', function(e){
+			e.preventDefault();
+			carousel3.next();
+		});
+
+
+
+
 
 
 	</script>

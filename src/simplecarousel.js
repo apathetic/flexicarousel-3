@@ -151,16 +151,13 @@ Carousel.prototype = {
 
 		if ( to < 0 || to >= this.numSlides ) {									// position the carousel if infinite and at end of bounds
 
-			var temp = (to < 0) ? this.numSlides : -1;
-
-			// this._addClass( this.slideWrap, 'no-animation' );
+			var temp = (to < 0) ? this.current+this.numSlides : this.current-this.numSlides;
 			this._slide( -(temp * this.width - this.deltaX)+'px' );
 
 			/* jshint ignore:start */
 			this.slideWrap.offsetHeight;										// force a repaint to actually position "to" slide. *Important*
 			/* jshint ignore:end */
 
-			// this._removeClass( this.slideWrap, 'no-animation' );
 		}
 
 		to = this._loop(to);
