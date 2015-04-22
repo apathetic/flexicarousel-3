@@ -34,19 +34,7 @@
 			width:100%;
 			height:auto;
 		}
-		.carousel nav {
-			text-align: center;
-		}
-		.carousel nav li {
-			width: 20px;
-			height: 20px;
-			margin: 5px;
-			border-radius: 50%;
-			background-color: green;
-		}
-		.carousel nav li.active {
-			background-color: blue;
-		}
+
 		.responsive {
 			position: relative;
 		}
@@ -149,11 +137,11 @@
 				</ul>
 			</div>
 			<nav>
-				<a href="" class="prev"></a>
+				<a href="" class="prev"> &#9664; </a>
 				<ul class="bullets">
 					<li></li><li></li><li></li><li></li><li></li><li></li><li></li>
 				</ul>
-				<a href="" class="next"></a>
+				<a href="" class="next"> &#9654; </a>
 			</nav>
 		</div>
 
@@ -178,8 +166,8 @@
 				</ul>
 			</div>
 			<nav>
-				<a href="" class="prev"></a>
-				<a href="" class="next"></a>
+				<a href="" class="prev"> &#9664; </a>
+				<a href="" class="next"> &#9654; </a>
 			</nav>
 		</div>
 
@@ -212,8 +200,8 @@
 				</ul>
 			</div>
 			<nav>
-				<a href="" class="prev"></a>
-				<a href="" class="next"></a>
+				<a href="" class="prev"> &#9664; </a>
+				<a href="" class="next"> &#9654; </a>
 			</nav>
 		</div>
 
@@ -255,7 +243,7 @@
 		var carousel = new Carousel(container, {
 			'onSlide': updateNav,
 			'display': 4,
-			'offscreen': 1
+			'offscreen': 2
 		});
 
 		container.querySelector('.prev').addEventListener('click', function(e){
