@@ -19,7 +19,8 @@ var Carousel = function(container, options){
 		slideWrap: 'ul',			// for binding touch events
 		slides: 'li',				// the slide
 		infinite: true,				// infinite scrolling or not
-		display: 1,					// if infinite, the # of slides to "view ahead" ie. position offscreen
+		display: 1,					// the minimum # of slides to display at a time
+		offscreen: 0,				// the # of slides to "view ahead" ie. position offscreen
 		disableDragging: false
 	};
 
@@ -28,6 +29,7 @@ var Carousel = function(container, options){
 	this.current = 0;
 	this.slides = [];
 	this.sliding = false;
+	this.cloned = 0;
 
 	// touch vars
 	// --------------------
@@ -49,7 +51,7 @@ var Carousel = function(container, options){
 	for (var x in tests) {
 		if ( style[x] !== undefined) {
 			this.transform = x;
-			this.transition = tests[x];
+			this.transitionEnd = tests[x];
 			break;
 		}
 	}
@@ -57,7 +59,6 @@ var Carousel = function(container, options){
 	// engage engines
 	// --------------------
 	this.init(options);
-
 };
 
 Carousel.prototype = {
@@ -77,36 +78,27 @@ Carousel.prototype = {
 		if ( !(this.slides		= this.slideWrap.querySelectorAll(this.options.slides)) ) { return; }	// note: assignment
 
 		this.numSlides = this.slides.length;
-		this.width = this.slideWrap.offsetWidth;											// for first drag
 
 		// check if we have sufficient slides to make a carousel
 		if ( this.numSlides < this.options.display ) { this.sliding = true; return; }		// this.sliding deactivates carousel. I will better-ify this one day. Maybe "this.active" ?
 		if ( this.options.infinite ) { this._cloneSlides(this.options.display); }
 
-		// add active class
-		this._addClass( this.slides[0], this.options.activeClass );
+		this.go(0);
 
 		// set up Events
 		if ( ! this.options.disableDragging) {
-			// mobile-only setup
 			if ( this.isTouch ) {
-				this.slideWrap.addEventListener('touchstart', this._dragStart.bind(this));
-				this.slideWrap.addEventListener('touchmove', this._drag.bind(this));
-				this.slideWrap.addEventListener('touchend', this._dragEnd.bind(this));
-				this.slideWrap.addEventListener('touchcancel', this._dragEnd.bind(this));
+				this.handle.addEventListener('touchstart', this._dragStart.bind(this));
+				this.handle.addEventListener('touchmove', this._drag.bind(this));
+				this.handle.addEventListener('touchend', this._dragEnd.bind(this));
+				this.handle.addEventListener('touchcancel', this._dragEnd.bind(this));
 			} else {
-				this.slideWrap.addEventListener('mousedown', this._dragStart.bind(this));
-				this.slideWrap.addEventListener('mousemove', this._drag.bind(this));
-				this.slideWrap.addEventListener('mouseup', this._dragEnd.bind(this));
-				this.slideWrap.addEventListener('mouseleave', this._dragEnd.bind(this));
+				this.handle.addEventListener('mousedown', this._dragStart.bind(this));
+				this.handle.addEventListener('mousemove', this._drag.bind(this));
+				this.handle.addEventListener('mouseup', this._dragEnd.bind(this));
+				this.handle.addEventListener('mouseleave', this._dragEnd.bind(this));
 			}
 		}
-
-		// OR, use this and comment out setTimeout in _slide:
-		// this.slideWrap.addEventListener(this.transition, (function(e) {
-		// 	this.sliding = false;
-		// 	this._removeClass( this.slideWrap, 'animate' );
-		// }).bind(this));
 
 		window.addEventListener('resize', this._updateView.bind(this));
 		window.addEventListener('orientationchange', this._updateView.bind(this));
@@ -139,37 +131,33 @@ Carousel.prototype = {
 	},
 
 	/**
-	 * Go to a particular slide. Prime the "to" slide by positioning it, and then calling _move()
-	 * @param  {int} to Slide to display
+	 * Go to a particular slide. Prime the "to" slide by positioning it, and then calling _slide() if needed
+	 * @param  {int} to		the slide to go to
 	 * @return {void}
 	 */
 	go: function(to) {
-
 		if ( this.sliding ) { return; }
 
-		this.width = this.slideWrap.offsetWidth;								// do this EVERY time, now
+		this.width = this.slides[0].offsetWidth;								// check every time
+		this.offset = this.cloned * this.width;
 
 		if ( to < 0 || to >= this.numSlides ) {									// position the carousel if infinite and at end of bounds
-
 			var temp = (to < 0) ? this.current+this.numSlides : this.current-this.numSlides;
-			this._slide( -(temp * this.width - this.deltaX)+'px' );
+			this._slide( -(temp * this.width - this.deltaX ) );
 
 			/* jshint ignore:start */
 			this.slideWrap.offsetHeight;										// force a repaint to actually position "to" slide. *Important*
 			/* jshint ignore:end */
-
 		}
 
 		to = this._loop(to);
 
-		if (this.options.onSlide) { this.options.onSlide(to, this.current); }	// note: doesn't check if is a function
+		if (this.options.onSlide) { this.options.onSlide.call(this, to, this.current); }	// note: doesn't check if it's a function
 
-		this._slide( -(to * this.width)+'px', true );							// true is to animate it
-
+		this._slide( -(to * this.width), true );
 		this._removeClass( this.slides[this.current], this.options.activeClass );
 		this._addClass( this.slides[to], this.options.activeClass );
 		this.current = to;
-		this.deltaX = 0;
 	},
 
 
@@ -182,7 +170,6 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	_dragStart: function(e) {
-
 		var touches;
 
 		if (this.sliding) {
@@ -200,9 +187,6 @@ Carousel.prototype = {
 		this.deltaX = 0;	// reset for the case when user does 0,0 touch
 		this.deltaY = 0;	// reset for the case when user does 0,0 touch
 
-		// this._addClass(this.slideWrap, 'no-animation');
-
-		if (e.type === 'mousedown') {}
 		if (e.target.tagName === 'IMG' || e.target.tagName === 'A') { e.target.draggable = false; }
 	},
 
@@ -212,7 +196,6 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	_drag: function(e) {
-
 		var abs = Math.abs,		// helper fn
 			touches;
 
@@ -229,9 +212,11 @@ Carousel.prototype = {
 		if (this.dragThresholdMet || (abs(this.deltaX) > abs(this.deltaY) && abs(this.deltaX) > 10)) {		// 10 from empirical testing
 
 			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
 
 			this.dragThresholdMet = true;
-			this._slide( (this.deltaX + (this.width * -this.current))+'px' );
+			this._slide( -(this.current * this.width - this.deltaX ) );
 
 		} else if ((abs(this.deltaY) > abs(this.deltaX) && abs(this.deltaY) > 10)) {
 			this.cancel = true;
@@ -244,24 +229,25 @@ Carousel.prototype = {
 	 * @return {void}
 	 */
 	_dragEnd: function() {
-
 		if (!this.dragging || this.cancel) {
 			return;
 		}
 
 		this.dragging = false;
-		// this._removeClass(this.slideWrap, 'no-animation');
 
 		if ( this.deltaX !== 0 && Math.abs(this.deltaX) < this.dragThreshold ) {
 			this.go(this.current);
 		}
 		else if ( this.deltaX > 0 ) {
-			// if (this.deltaX > some_width) this.prev();	// momentum based check to swipe multiple slides?
+			var jump = Math.round(this.deltaX / this.width);	// distance-based check to swipe multiple slides
+			// this.go(jump);
 			this.prev();
 		}
 		else if ( this.deltaX < 0 ) {
 			this.next();
 		}
+
+		this.deltaX = 0;
 	},
 
 
@@ -275,8 +261,8 @@ Carousel.prototype = {
 	 * @return {[type]}        [description]
 	 */
 	_slide: function(offset, animate) {
+		offset -= this.offset;
 
-		// the alternatives are to manually transition, or to have a "no-transition" class and invert the logic
 		if ( animate ) {
 			this.sliding = true;
 			this._addClass( this.slideWrap, 'animate' );
@@ -291,10 +277,10 @@ Carousel.prototype = {
 		}
 
 		if (this.transform) {
-			this.slideWrap.style[this.transform] = 'translate3d(' + offset + ', 0, 0)';
+			this.slideWrap.style[this.transform] = 'translate3d(' + offset + 'px, 0, 0)';
 		}
 		else {
-			this.slideWrap.style.left = offset;
+			this.slideWrap.style.left = offset+'px';
 		}
 	},
 
@@ -312,16 +298,13 @@ Carousel.prototype = {
 	},
 
 	/**
-	 * Recalculate container width
-	 * @return {[type]} [description]
+	 * Update the slides' position on a resize. This is throttled at 300ms
+	 * @return {void}
 	 */
 	_updateView: function() {
-		// this.width = this.slideWrap.offsetWidth;
-		// this.go(this.current);			// throttle this?
-
 		var self = this;
 		clearTimeout(this.timer);
-		this.timer = setTimeout(function() { self.go(self.current); }, 300);
+		this.timer = setTimeout(function(){ self.go(self.current); }, 300);
 	},
 
 	/**
@@ -331,24 +314,22 @@ Carousel.prototype = {
 	 * @return {[type]} [description]
 	 */
 	_cloneSlides: function() {
-		var offscreen,
-			end,
+		var beg, end,
 			duplicate,
 			i;
 
-		offscreen = this.options.offscreen || 1;								// the number of slides that "hang" off the ends. Normally only need 1 to accommodate transitions
-
-		end = (this.options.display + offscreen - 1);
+		end = this.options.display + this.options.offscreen - 1;
 		end = (end > this.numSlides) ? this.numSlides : end;
-		// beg = (this.numSlides - offscreen);
+		beg = this.numSlides - this.options.offscreen - 1;
 
 		// beginning
-		for (i = this.numSlides; i > (this.numSlides - offscreen); i--) {
+		for (i = this.numSlides; i > beg; i--) {
 			duplicate = this.slides[i-1].cloneNode(true);						// cloneNode --> true is deep cloning
 			duplicate.removeAttribute('id');
 			duplicate.setAttribute('aria-hidden', 'true');
 			this._addClass( duplicate, 'clone');
 			this.slideWrap.insertBefore(duplicate, this.slideWrap.firstChild);	// add duplicate to beg'n of slides
+			this.cloned++;
 		}
 
 		// end
@@ -360,7 +341,7 @@ Carousel.prototype = {
 			this.slideWrap.appendChild(duplicate);
 		}
 
-		this.slideWrap.style.marginLeft = (-offscreen)+'00%';					// use marginLeft (not left) so IE8/9 etc can use left to slide
+		// this.slideWrap.style.marginLeft = (-offscreen)+'00%';					// use marginLeft (not left) so IE8/9 etc can use left to slide
 	},
 
 	/**

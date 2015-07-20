@@ -10,10 +10,10 @@
 		------------------------------------- */
 
 		.carousel ul {
-			position:relative;
-			white-space:nowrap;
-			width:100%;
-			font-size: 0;
+			white-space: nowrap;
+			width: 100%;
+			/*font-size: 0;*/
+			/*position: relative;*/
 		}
 
 		.carousel .animate {
@@ -23,15 +23,27 @@
 		          transition: all 0.4s ease;
 		}
 
-		.carousel ul > li {
-			font-size: 18px;
-			display:inline-block;
-			vertical-align: top;
-			position:relative;
-			width:100%;
-			overflow: hidden;
-			cursor: move;
+		.carousel .wrap {
+			display: -webkit-flex;
+			display: -moz-flex;
+			display: -ms-flex;
+			display: flex;
+
+			-webkit-flex-wrap: nowrap;
+			   -moz-flex-wrap: nowrap;
+			        flex-wrap: nowrap;
 		}
+
+		.carousel .wrap > li {
+			display:inline-block;		/* IE9 */
+			/*vertical-align: top;*/
+			/*position:relative;*/
+			/*width:100%;*/
+
+			cursor: move;
+			flex: 1 0 100%;
+		}
+
 
 
 
@@ -41,24 +53,49 @@
 		.carousel nav {
 			width: 100%;
 			height: 64px;
-			position: relative;
+			text-align: center;
+			font-size: 16px;
 		}
 		.carousel nav .prev,
 		.carousel nav .next {
-			position:absolute;
-			top: 16px;
 			display:block;
-			width: 32px;
-			height: 32px;
-			background: blue;
-			border-radius: 16px;
+			position:absolute;
+			top: 50%;
+			margin-top: -1em;
+			width: 2em;
+			height: 2em;
+			line-height: 2em;
+			font-size: 2em;
+			border-radius: 50%;
+			text-decoration: none;
+			color: white;
+			background-color: purple;
 		}
-		.carousel nav .next { right:16px; }
-		.carousel nav .prev { left:16px; }
+		.carousel nav .next { right: -1em; }
+		.carousel nav .prev { left:	-1em; }
+
+		.carousel nav .next.disabled,
+		.carousel nav .prev.disabled {
+			opacity: 0.2;
+		}
+
+		.carousel nav li {
+			display: inline-block;
+			cursor: pointer;
+			width: 	12px;
+			height: 12px;
+			margin: 5px;
+			border-radius: 50%;
+			border: 2px solid #999;
+		}
+		.carousel nav li.active {
+			border-color: #aaa;
+			background: #aaa;
+		}
 
 
 		/* -------------------------------------
-			RANDOM BREAKPOINT
+			SAMPLE SLIDE RESPONSIVENESS
 		------------------------------------- */
 		@media(min-width:1000px) {
 			/*.carousel { width:800px; }*/

@@ -19,7 +19,7 @@
 		.container {
 			margin:	0 auto;
 			padding: 0 6%;
-			max-width:1280px;
+			max-width:1600px;
 			min-width:320px;
 		}
 		.carousel {
@@ -34,60 +34,18 @@
 			width:100%;
 			height:auto;
 		}
-		.carousel nav {
-			text-align: center;
-		}
-		.carousel nav li {
-			width: 20px;
-			height: 20px;
-			margin: 5px;
-			border-radius: 50%;
-			background-color: green;
-		}
-		.carousel nav li.active {
-			background-color: blue;
-		}
-		.responsive {
-			position: relative;
-		}
 
-		#billion .responsive {
-			width: 50%;
-			padding: 0 50px;
-			overflow: hidden;
-			margin: 0 auto;
-		}
 
-		/* ---- DESKTOP ---- */
-		@media screen and (min-width:961px) {
-			#ten .responsive { width: 25%; }
-			#seven .responsive {
-				overflow: hidden;
-				padding-right: 75%; 		/* instead of width 25% */
-			}
-
-			#ten li img {
-				-webkit-filter: brightness(30%);
-			}
-
-			#ten li.active img,
-			#ten li.active + li img,
-			#ten li.active + li + li img,
-			#ten li.active + li + li + li img
-			{
-				-webkit-filter: brightness(100%);
-				opacity: 1;
+		/* TEN */
+		@media(min-width:640px) {
+			#ten .wrap > li {
+				flex-basis: 100%;
 			}
 		}
-
-		/* ---- TABLET ---- */
-		@media screen and (max-width:960px) {
-			#ten .responsive { width: 50%; }
-			#seven .responsive {
-				overflow: hidden;
-				padding-right: 50%; 		/* instead of width 25% */
+		@media(min-width:960px) {
+			#ten .wrap > li {
+				flex-basis: 50%;
 			}
-
 			#ten li.active img,
 			#ten li.active + li img
 			{
@@ -95,125 +53,182 @@
 				opacity: 1;
 			}
 		}
+		@media(min-width:1280px) {
+			#ten .wrap li {
+				flex-basis: 33.3333%;
+			}
+			#ten li img {
+				-webkit-filter: brightness(30%);
+			}
 
-		/* ---- MOBILE ---- */
-		@media screen and (max-width:640px) {
-			#ten .responsive { width: 100%; }
-			#seven .responsive { width: 100%; }
+			#ten li.active img,
+			#ten li.active + li img,
+			#ten li.active + li + li img
+			{
+				-webkit-filter: brightness(100%);
+				opacity: 1;
+			}
 		}
+
+
+
+		/* BILLION */
+		#billion {
+			width: 50%;
+			min-width: 400px;
+			margin: 0 auto;
+  			padding: 0 100px;
+  			overflow: hidden;
+  		}
+
+		#billion li {
+			flex-basis: 100%;
+		}
+
+		#billion nav .prev { left: 1em; }
+		#billion nav .next { right: 1em; }
+
+
+
+
+		/* SEVEN */
+		#seven .wrap > li {
+			background-color: #bbb;
+			padding: 20px;
+			text-align: center;
+
+			/* margin: 10px;	*/
+			/* NOTE: these slides are flex: 1 0 100%, while margin will add to the calculated width. So... */
+
+			border: 10px solid transparent;
+	        background-clip: padding-box;
+		}
+		@media screen and (min-width:640px) {
+			#seven .wrap > li {
+				flex-basis: 100%;
+			}
+		}
+		@media screen and (min-width:960px) {
+			#seven .wrap > li {
+				flex-basis: 50%;
+			}
+		}
+		@media screen and (min-width:1280px) {
+			#seven .wrap > li {
+				flex-basis: 33.3333%;
+			}
+		}
+
+
 
 	</style>
 
 </head>
 <body>
 
-	<div id="log" style="position:fixed; z-index:100; top:0; left:0;"></div>
 
 	<h1>CAROUSEL TEN BILLION</h1>
 
 	<div class="container">
 
 
-
+		<h2>Infinite, overflowing</h2>
 		<div class="carousel" id="ten">
-			<div class="responsive">
-				<ul>
-					<li>
-						<h3>1</h3>
-						<img src="/demo/images/face1.jpg">
-					</li>
-					<li>
-						<h3>2</h3>
-						<img src="/demo/images/face2.jpg">
-					</li>
-					<li>
-						<h3>3</h3>
-						<img src="/demo/images/face3.jpg">
-					</li>
-					<li>
-						<h3>4</h3>
-						<img src="/demo/images/face4.jpg">
-					</li>
-					<li>
-						<h3>5</h3>
-						<img src="/demo/images/face1.jpg">
-					</li>
-					<li>
-						<h3>6</h3>
-						<img src="/demo/images/face2.jpg">
-					</li>
-					<li>
-						<h3>7</h3>
-						<img src="/demo/images/face3.jpg">
-					</li>
-				</ul>
-			</div>
+			<ul class="wrap">
+				<li>
+					<h3>1</h3>
+					<img src="/demo/images/face1.jpg">
+				</li>
+				<li>
+					<h3>2</h3>
+					<img src="/demo/images/face2.jpg">
+				</li>
+				<li>
+					<h3>3</h3>
+					<img src="/demo/images/face3.jpg">
+				</li>
+				<li>
+					<h3>4</h3>
+					<img src="/demo/images/face4.jpg">
+				</li>
+				<li>
+					<h3>5</h3>
+					<img src="/demo/images/face1.jpg">
+				</li>
+				<li>
+					<h3>6</h3>
+					<img src="/demo/images/face2.jpg">
+				</li>
+				<li>
+					<h3>7</h3>
+					<img src="/demo/images/face3.jpg">
+				</li>
+			</ul>
+
 			<nav>
-				<a href="" class="prev"></a>
+				<a href="" class="prev"> ‹ </a>
 				<ul class="bullets">
 					<li></li><li></li><li></li><li></li><li></li><li></li><li></li>
 				</ul>
-				<a href="" class="next"></a>
+				<a href="" class="next"> › </a>
 			</nav>
 		</div>
 
 
 
-
+		<h2>Bounded, clipped</h2>
 		<div class="carousel" id="billion">
-			<div class="responsive">
-				<ul>
-					<li>
-						<h3>1</h3>
-						<img src="/demo/images/face1.jpg">
-					</li>
-					<li>
-						<h3>2</h3>
-						<img src="/demo/images/face2.jpg">
-					</li>
-					<li>
-						<h3>3</h3>
-						<img src="/demo/images/face3.jpg">
-					</li>
-				</ul>
-			</div>
+			<ul class="wrap">
+				<li>
+					<h3>1</h3>
+					<img src="/demo/images/face1.jpg">
+				</li>
+				<li>
+					<h3>2</h3>
+					<img src="/demo/images/face2.jpg">
+				</li>
+				<li>
+					<h3>3</h3>
+					<img src="/demo/images/face3.jpg">
+				</li>
+			</ul>
+
 			<nav>
-				<a href="" class="prev"></a>
-				<a href="" class="next"></a>
+				<a href="" class="prev"> ‹ </a>
+				<a href="" class="next"> › </a>
 			</nav>
 		</div>
 
 
 
-
+		<h2>Infinite, scroll by 3</h2>
 		<div class="carousel" id="seven">
-			<div class="responsive">
-				<ul>
-					<li>
-						<h3>1</h3>
-						<img src="/demo/images/face1.jpg">
-					</li>
-					<li>
-						<h3>2</h3>
-						<img src="/demo/images/face2.jpg">
-					</li>
-					<li>
-						<h3>3</h3>
-						<img src="/demo/images/face3.jpg">
-					</li>
-					<li>
-						<h3>4</h3>
-						<img src="/demo/images/face2.jpg">
-					</li>
-					<li>
-						<h3>5</h3>
-						<img src="/demo/images/face1.jpg">
-					</li>
-				</ul>
-			</div>
+			<ul class="wrap">
+				<li>
+					<h3>1</h3>
+					<img src="/demo/images/face1.jpg">
+				</li>
+				<li>
+					<h3>2</h3>
+					<img src="/demo/images/face2.jpg">
+				</li>
+				<li>
+					<h3>3</h3>
+					<img src="/demo/images/face3.jpg">
+				</li>
+				<li>
+					<h3>4</h3>
+					<img src="/demo/images/face2.jpg">
+				</li>
+				<li>
+					<h3>5</h3>
+					<img src="/demo/images/face1.jpg">
+				</li>
+			</ul>
+
 			<nav>
-				<a href="" class="prev"></a>
-				<a href="" class="next"></a>
+				<a href="" class="prev"> ‹ </a>
+				<a href="" class="next"> › </a>
 			</nav>
 		</div>
 
@@ -229,14 +244,35 @@
 	<script src="../../src/simplecarousel.js"></script>
 	<script>
 
+        /**
+         * Removes whitespace nodes. Useful to normalize inline-block layouts (IE)
+         * @param  {DOMElement} handle the element to remove whitespace nodes from
+         * @return {void}
+         */
+        function removeEmptyNodes (handle) {
+            var spaces = _.filter(handle.childNodes,
+                function(el) {
+                    return (el.nodeType === 3 && !/\S/.test(el.nodeValue));
+                });
+
+            _.each(spaces, function(space) {
+                handle.removeChild(space);
+            });
+        }
 
 
 		function updateNav(i) {
-			if (prev) {
-				prev.classList.toggle('disabled', i === 0);
-			}
-			if (next) {
-				next.classList.toggle('disabled', i + 1 >= carousel.numSlides);
+			var bullets = this.handle.querySelectorAll('.bullets li');
+			var next = this.handle.querySelector('.next');
+			var prev = this.handle.querySelector('.prev');
+
+			if (!this.options.infinite) {
+				if (prev) {
+					prev.classList.toggle('disabled', i === 0);
+				}
+				if (next) {
+					next.classList.toggle('disabled', i + 1 >= this.numSlides);
+				}
 			}
 
 			if (bullets && bullets.length > 0) {
@@ -248,10 +284,11 @@
 		}
 
 
+		// ===================================================================
+
+
 		var container = document.querySelector('#ten');
 		var bullets = container.querySelectorAll('.bullets li');
-		var next = container.querySelector('.next');
-		var prev = container.querySelector('.prev');
 		var carousel = new Carousel(container, {
 			'onSlide': updateNav,
 			'display': 4,
@@ -280,7 +317,10 @@
 		// ===================================================================
 
 		var container2 = document.querySelector('#billion');
-		var carousel2 = new Carousel(container2, {infinite:false});
+		var carousel2 = new Carousel(container2, {
+			'infinite': false,
+			'onSlide': updateNav
+		});
 
 		container2.querySelector('.prev').addEventListener('click', function(e){
 			e.preventDefault();
