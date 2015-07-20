@@ -92,11 +92,3 @@
 			border-color: #aaa;
 			background: #aaa;
 		}
-
-
-		/* -------------------------------------
-			SAMPLE SLIDE RESPONSIVENESS
-		------------------------------------- */
-		@media(min-width:1000px) {
-			/*.carousel { width:800px; }*/
-		}
