@@ -88,15 +88,15 @@ Carousel.prototype = {
 		// set up Events
 		if ( ! this.options.disableDragging) {
 			if ( this.isTouch ) {
-				this.handle.addEventListener('touchstart', this._dragStart.bind(this));
-				this.handle.addEventListener('touchmove', this._drag.bind(this));
-				this.handle.addEventListener('touchend', this._dragEnd.bind(this));
-				this.handle.addEventListener('touchcancel', this._dragEnd.bind(this));
+				this.slideWrap.addEventListener('touchstart', this._dragStart.bind(this));
+				this.slideWrap.addEventListener('touchmove', this._drag.bind(this));
+				this.slideWrap.addEventListener('touchend', this._dragEnd.bind(this));
+				this.slideWrap.addEventListener('touchcancel', this._dragEnd.bind(this));
 			} else {
-				this.handle.addEventListener('mousedown', this._dragStart.bind(this));
-				this.handle.addEventListener('mousemove', this._drag.bind(this));
-				this.handle.addEventListener('mouseup', this._dragEnd.bind(this));
-				this.handle.addEventListener('mouseleave', this._dragEnd.bind(this));
+				this.slideWrap.addEventListener('mousedown', this._dragStart.bind(this));
+				this.slideWrap.addEventListener('mousemove', this._drag.bind(this));
+				this.slideWrap.addEventListener('mouseup', this._dragEnd.bind(this));
+				this.slideWrap.addEventListener('mouseleave', this._dragEnd.bind(this));
 			}
 		}
 
@@ -151,10 +151,10 @@ Carousel.prototype = {
 		}
 
 		to = this._loop(to);
+		this._slide( -(to * this.width), true );
 
 		if (this.options.onSlide) { this.options.onSlide.call(this, to, this.current); }	// note: doesn't check if it's a function
 
-		this._slide( -(to * this.width), true );
 		this._removeClass( this.slides[this.current], this.options.activeClass );
 		this._addClass( this.slides[to], this.options.activeClass );
 		this.current = to;
@@ -239,8 +239,8 @@ Carousel.prototype = {
 			this.go(this.current);
 		}
 		else if ( this.deltaX > 0 ) {
-			var jump = Math.round(this.deltaX / this.width);	// distance-based check to swipe multiple slides
-			// this.go(jump);
+			// var jump = Math.round(this.deltaX / this.width);	// distance-based check to swipe multiple slides
+			// this.go(this.current - jump);
 			this.prev();
 		}
 		else if ( this.deltaX < 0 ) {
@@ -308,10 +308,9 @@ Carousel.prototype = {
 	},
 
 	/**
-	 * Duplicate the first and last N slides so that infinite scrolling can work
-	 * Would ordinarily only need 1 slide duplicated, except for this particular project
-	 * where we want to see the outlying slides as well
-	 * @return {[type]} [description]
+	 * Duplicate the first and last N slides so that infinite scrolling can work.
+	 * Depends on how many slides are visible at a time, and any outlying slides as well
+	 * @return {void}
 	 */
 	_cloneSlides: function() {
 		var beg, end,
