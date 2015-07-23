@@ -11,10 +11,13 @@
 
 		* { box-sizing: border-box; }
 		body, html { height:100%; margin:0; padding:0; overflow-x:hidden; }
+		header, footer { background-color: #ddd; padding: 20px 0; }
 		h1 { text-align: center; }
 		ul, li { margin:0; padding:0; list-style:none; }
 		hr { margin: 5em 0; }
 		button { display: inline-block; }
+		h2 { text-align: center; }
+		h3 { position:absolute; font-size:3em; color:#fff; padding:2%; margin:0; z-index:1; }
 
 		.container {
 			margin:	0 auto;
@@ -29,20 +32,28 @@
 		}
 		.carousel li {
 			padding: 2px;
+			max-height: 600px;
+			overflow: hidden;
 		}
 		.carousel img {
 			width:100%;
 			height:auto;
+			/*max-width: 400px;*/
+			/*margin: 0 auto;*/
+			/*display: block;*/
 		}
 
+		.clip {
+			overflow: hidden;
+		}
 
 		/* TEN */
-		@media(min-width:640px) {
+		@media(min-width:480px) {
 			#ten .wrap > li {
 				flex-basis: 100%;
 			}
 		}
-		@media(min-width:960px) {
+		@media(min-width:800px) {
 			#ten .wrap > li {
 				flex-basis: 50%;
 			}
@@ -53,7 +64,7 @@
 				opacity: 1;
 			}
 		}
-		@media(min-width:1280px) {
+		@media(min-width:1120px) {
 			#ten .wrap li {
 				flex-basis: 33.3333%;
 			}
@@ -78,7 +89,6 @@
 			min-width: 400px;
 			margin: 0 auto;
   			padding: 0 100px;
-  			overflow: hidden;
   		}
 
 		#billion li {
@@ -94,8 +104,9 @@
 		/* SEVEN */
 		#seven .wrap > li {
 			background-color: #bbb;
-			padding: 20px;
+			padding: 2%;
 			text-align: center;
+			/*flex-basis: 33.3333%;*/
 
 			/* margin: 10px;	*/
 			/* NOTE: these slides are flex: 1 0 100%, while margin will add to the calculated width. So... */
@@ -103,19 +114,19 @@
 			border: 10px solid transparent;
 	        background-clip: padding-box;
 		}
-		@media screen and (min-width:640px) {
-			#seven .wrap > li {
-				flex-basis: 100%;
-			}
-		}
-		@media screen and (min-width:960px) {
-			#seven .wrap > li {
-				flex-basis: 50%;
-			}
-		}
-		@media screen and (min-width:1280px) {
+		@media screen and (min-width:480px) {
 			#seven .wrap > li {
 				flex-basis: 33.3333%;
+			}
+		}
+		@media screen and (min-width:800px) {
+			#seven .wrap > li {
+				flex-basis: 25%;
+			}
+		}
+		@media screen and (min-width:1120px) {
+			#seven .wrap > li {
+				flex-basis: 20%;
 			}
 		}
 
@@ -127,7 +138,10 @@
 <body>
 
 
-	<h1>CAROUSEL TEN BILLION</h1>
+	<header>
+		<h1>CAROUSEL TEN BILLION</h1>
+	</header>
+
 
 	<div class="container">
 
@@ -175,9 +189,11 @@
 		</div>
 
 
+		<hr />
+
 
 		<h2>Bounded, clipped</h2>
-		<div class="carousel" id="billion">
+		<div class="carousel clip" id="billion">
 			<ul class="wrap">
 				<li>
 					<h3>1</h3>
@@ -199,32 +215,44 @@
 			</nav>
 		</div>
 
+
+		<hr />
 
 
 		<h2>Infinite, scroll by 3</h2>
 		<div class="carousel" id="seven">
-			<ul class="wrap">
-				<li>
-					<h3>1</h3>
-					<img src="/demo/images/face1.jpg">
-				</li>
-				<li>
-					<h3>2</h3>
-					<img src="/demo/images/face2.jpg">
-				</li>
-				<li>
-					<h3>3</h3>
-					<img src="/demo/images/face3.jpg">
-				</li>
-				<li>
-					<h3>4</h3>
-					<img src="/demo/images/face2.jpg">
-				</li>
-				<li>
-					<h3>5</h3>
-					<img src="/demo/images/face1.jpg">
-				</li>
-			</ul>
+			<div class="clip">
+				<ul class="wrap">
+					<li>
+						<h3>1</h3>
+						<img src="/demo/images/face1.jpg">
+					</li>
+					<li>
+						<h3>2</h3>
+						<img src="/demo/images/face2.jpg">
+					</li>
+					<li>
+						<h3>3</h3>
+						<img src="/demo/images/face3.jpg">
+					</li>
+					<li>
+						<h3>4</h3>
+						<img src="/demo/images/face2.jpg">
+					</li>
+					<li>
+						<h3>5</h3>
+						<img src="/demo/images/face1.jpg">
+					</li>
+					<li>
+						<h3>6</h3>
+						<img src="/demo/images/face2.jpg">
+					</li>
+					<li>
+						<h3>7</h3>
+						<img src="/demo/images/face3.jpg">
+					</li>
+				</ul>
+			</div>
 
 			<nav>
 				<a href="" class="prev"> ‹ </a>
@@ -232,13 +260,12 @@
 			</nav>
 		</div>
 
-
-
-
-
-
-
 	</div>
+
+
+	<footer>
+		...
+	</footer>
 
 
 	<script src="../../src/simplecarousel.js"></script>
@@ -340,18 +367,18 @@
 		var container3 = document.querySelector('#seven');
 		var carousel3 = new Carousel(container3, {
 			infinite: true,
-			display: 4,
+			display: 5,
 			offscreen: skip
 		});
 
 		container3.querySelector('.prev').addEventListener('click', function(e){
 			e.preventDefault();
-			carousel3.go(carousel3.current+skip);
+			carousel3.go(carousel3.current + skip);
 		});
 
 		container3.querySelector('.next').addEventListener('click', function(e){
 			e.preventDefault();
-			carousel3.go(carousel3.current-skip);
+			carousel3.go(carousel3.current - skip);
 		});
 
 
